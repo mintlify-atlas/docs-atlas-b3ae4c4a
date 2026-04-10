@@ -1,0 +1,131 @@
+---
+title: "Get started with MUI X Data Grid"
+description: "Install the MUI X Data Grid, define your columns with GridColDef, provide row data, and render a fully functional table in your React app."
+---
+
+This guide walks you through installing the Data Grid Community package, defining columns with `GridColDef`, providing row data, and rendering a working grid in your application.
+
+## Install
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install @mui/x-data-grid @mui/material @emotion/react @emotion/styled
+    ```
+  </Tab>
+  <Tab title="yarn">
+    ```bash
+    yarn add @mui/x-data-grid @mui/material @emotion/react @emotion/styled
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add @mui/x-data-grid @mui/material @emotion/react @emotion/styled
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+`@mui/material` and the Emotion packages are peer dependencies required by the Data Grid's Material UI styling.
+</Note>
+
+## Render a basic grid
+
+<Steps>
+  <Step title="Import DataGrid and types">
+    Import `DataGrid` from `@mui/x-data-grid` along with the `GridColDef` type for column definitions.
+
+    ```tsx
+    import { DataGrid, GridColDef } from '@mui/x-data-grid';
+    ```
+  </Step>
+
+  <Step title="Define your columns">
+    Each column is described by a `GridColDef` object. The `field` property maps to a key in your row data. Use `headerName` to set the display label, `width` to fix the column width, and `type` to enable type-aware filtering and sorting.
+
+    ```tsx
+    const columns: GridColDef[] = [
+      { field: 'id', headerName: 'ID', width: 70 },
+      { field: 'firstName', headerName: 'First name', width: 130 },
+      { field: 'lastName', headerName: 'Last name', width: 130 },
+      { field: 'age', headerName: 'Age', type: 'number', width: 90 },
+    ];
+    ```
+  </Step>
+
+  <Step title="Provide your rows">
+    Rows are plain objects. Each row must have an `id` field by default, or you can supply a `getRowId` prop to extract the ID from a different field.
+
+    ```tsx
+    const rows = [
+      { id: 1, firstName: 'Alice', lastName: 'Smith', age: 35 },
+      { id: 2, firstName: 'Bob', lastName: 'Jones', age: 42 },
+      { id: 3, firstName: 'Carol', lastName: 'White', age: 28 },
+    ];
+    ```
+  </Step>
+
+  <Step title="Render the DataGrid">
+    The `DataGrid` requires a fixed-height container or the `autoHeight` prop. Pass `columns` and `rows` as required props. Add `pagination` to enable the built-in paginator.
+
+    ```tsx
+    export default function EmployeeTable() {
+      return (
+        <div style={{ height: 400, width: '100%' }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            pageSizeOptions={[5, 10, 25]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 5 } },
+            }}
+            checkboxSelection
+          />
+        </div>
+      );
+    }
+    ```
+  </Step>
+</Steps>
+
+## Complete example
+
+```tsx
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+
+const columns: GridColDef[] = [
+  { field: 'id', headerName: 'ID', width: 70 },
+  { field: 'firstName', headerName: 'First name', width: 130 },
+  { field: 'lastName', headerName: 'Last name', width: 130 },
+  { field: 'age', headerName: 'Age', type: 'number', width: 90 },
+];
+
+const rows = [
+  { id: 1, firstName: 'Alice', lastName: 'Smith', age: 35 },
+  { id: 2, firstName: 'Bob', lastName: 'Jones', age: 42 },
+  { id: 3, firstName: 'Carol', lastName: 'White', age: 28 },
+];
+
+export default function EmployeeTable() {
+  return (
+    <div style={{ height: 400, width: '100%' }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pageSizeOptions={[5, 10, 25]}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 5 } },
+        }}
+        checkboxSelection
+      />
+    </div>
+  );
+}
+```
+
+## Next steps
+
+- [Define columns](/data-grid/columns) — learn all `GridColDef` options including `flex`, `renderCell`, and `valueGetter`
+- [Working with rows](/data-grid/rows) — configure row selection, custom row IDs, and row height
+- [Filtering](/data-grid/filtering) — add column filters and a quick filter search box
+- [Sorting and pagination](/data-grid/sorting-pagination) — control sort state and paginate large datasets

@@ -1,0 +1,143 @@
+---
+title: "DatePicker component: date selection for React"
+description: "Learn how to use the MUI X DatePicker, DesktopDatePicker, MobileDatePicker, and StaticDatePicker components with controlled state and validation props."
+---
+
+The `DatePicker` component lets users select a single date. It automatically switches between a popover calendar (desktop) and a dialog calendar (mobile) based on the device pointer type. Use the explicit `DesktopDatePicker` or `MobileDatePicker` components when you need to force a specific presentation mode.
+
+## Variants
+
+| Component | Description |
+|---|---|
+| `DatePicker` | Responsive — renders desktop or mobile variant automatically |
+| `DesktopDatePicker` | Always renders as a popover |
+| `MobileDatePicker` | Always renders as a dialog |
+| `StaticDatePicker` | Inline calendar — always visible, no trigger input |
+
+All four are exported from `@mui/x-date-pickers`.
+
+## Controlled usage
+
+Pass `value` and `onChange` to make the picker controlled. The value is `null` when no date is selected.
+
+```tsx
+import * as React from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+export default function ControlledDatePicker() {
+  const [value, setValue] = React.useState<Dayjs | null>(null);
+
+  return (
+    <DatePicker
+      label="Date of birth"
+      value={value}
+      onChange={(newValue) => setValue(newValue)}
+    />
+  );
+}
+```
+
+## Uncontrolled usage
+
+Use `defaultValue` when you do not need to control the value externally.
+
+```tsx
+import dayjs from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+export default function UncontrolledDatePicker() {
+  return (
+    <DatePicker
+      label="Start date"
+      defaultValue={dayjs('2025-06-01')}
+    />
+  );
+}
+```
+
+## Desktop and mobile variants
+
+```tsx
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+
+// Always renders the popover calendar
+<DesktopDatePicker label="Desktop" value={value} onChange={setValue} />
+
+// Always renders the dialog calendar
+<MobileDatePicker label="Mobile" value={value} onChange={setValue} />
+```
+
+## Static (inline) variant
+
+`StaticDatePicker` renders the calendar inline without an input trigger. It is useful for embedding a date picker directly in a form or panel.
+
+```tsx
+import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
+
+<StaticDatePicker
+  value={value}
+  onChange={(newValue) => setValue(newValue)}
+/>
+```
+
+## Key props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `Dayjs \| null` | — | The selected date (controlled). |
+| `defaultValue` | `Dayjs \| null` | — | Initial date (uncontrolled). |
+| `onChange` | `(value, context) => void` | — | Fires when the user selects a new date. |
+| `onAccept` | `(value, context) => void` | — | Fires when the user confirms the selection. |
+| `format` | `string` | Locale default | Display format for the text field. |
+| `minDate` | `Dayjs` | `1900-01-01` | Earliest selectable date. |
+| `maxDate` | `Dayjs` | `2099-12-31` | Latest selectable date. |
+| `disablePast` | `boolean` | `false` | Disables all dates before today. |
+| `disableFuture` | `boolean` | `false` | Disables all dates after today. |
+| `disabled` | `boolean` | `false` | Disables the entire picker. |
+| `readOnly` | `boolean` | `false` | Allows interaction but prevents value changes. |
+| `views` | `Array<'year' \| 'month' \| 'day'>` | `['year','month','day']` | Which views to display. |
+| `openTo` | `'year' \| 'month' \| 'day'` | `'day'` | Which view opens first. |
+| `orientation` | `'portrait' \| 'landscape'` | — | Force a rendering orientation. |
+| `closeOnSelect` | `boolean` | `true` (desktop) | Close the picker after full date selection. |
+| `desktopModeMediaQuery` | `string` | `'@media (pointer: fine)'` | Media query that switches to desktop mode. |
+
+## Validation
+
+Use `minDate`, `maxDate`, `disablePast`, `disableFuture`, and `shouldDisableDate` to constrain which dates are selectable.
+
+```tsx
+import dayjs from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+<DatePicker
+  label="Appointment"
+  minDate={dayjs()}
+  maxDate={dayjs().add(90, 'day')}
+  shouldDisableDate={(date) => date.day() === 0 || date.day() === 6}
+/>
+```
+
+<Warning>
+  `shouldDisableDate` may be called many times during a render cycle. Avoid expensive computations inside this callback.
+</Warning>
+
+## Custom date format
+
+Set `format` to a Day.js format string to control how the selected date appears in the text field.
+
+```tsx
+<DatePicker
+  label="Year and month"
+  views={['year', 'month']}
+  openTo="month"
+  format="MMMM YYYY"
+  value={value}
+  onChange={setValue}
+/>
+```
+
+<Tip>
+  The `format` string uses the tokens of your configured date library. For Day.js, refer to the [Day.js format documentation](https://day.js.org/docs/en/display/format).
+</Tip>

@@ -1,0 +1,191 @@
+---
+title: "Aggregate column values in Data Grid Premium"
+description: "Display sum, avg, min, max, and count aggregations on Data Grid columns using the aggregationModel prop. Requires a Premium license."
+---
+
+Aggregation computes summary values — such as sums, averages, and counts — across rows or groups of rows and displays them in the grid footer or inline within group rows. This feature is exclusive to `DataGridPremium` and requires a valid Premium license.
+
+<Warning>
+Aggregation requires a `DataGridPremium` instance and a Premium license key. See the [licensing](/licensing) page.
+</Warning>
+
+## Setup
+
+```bash
+npm install @mui/x-data-grid-premium @mui/x-license
+```
+
+```tsx
+import { LicenseInfo } from '@mui/x-license';
+LicenseInfo.setLicenseKey('YOUR_LICENSE_KEY');
+
+import { DataGridPremium } from '@mui/x-data-grid-premium';
+```
+
+## Built-in aggregation functions
+
+The following aggregation functions are built in:
+
+| Function | Description |
+|----------|-------------|
+| `sum` | Sum of all values |
+| `avg` | Mean of all values |
+| `min` | Minimum value |
+| `max` | Maximum value |
+| `count` | Number of rows |
+| `size` | Number of rows (alias for `count`) |
+
+## Configuring aggregation with aggregationModel
+
+The `aggregationModel` prop maps column fields to the aggregation function to apply:
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  aggregationModel={{
+    salary: 'sum',
+    age: 'avg',
+  }}
+/>
+```
+
+## Controlled aggregation model
+
+Use `aggregationModel` and `onAggregationModelChange` to control the aggregation state:
+
+```tsx
+import { useState } from 'react';
+import { DataGridPremium, GridAggregationModel } from '@mui/x-data-grid-premium';
+
+export default function AggregatedGrid() {
+  const [aggregationModel, setAggregationModel] = useState<GridAggregationModel>({
+    salary: 'sum',
+    age: 'avg',
+  });
+
+  return (
+    <DataGridPremium
+      rows={rows}
+      columns={columns}
+      aggregationModel={aggregationModel}
+      onAggregationModelChange={(model) => setAggregationModel(model)}
+    />
+  );
+}
+```
+
+## Aggregation with row grouping
+
+Aggregation becomes especially useful when combined with row grouping. Each group row displays the aggregated value for that group, and a footer row shows the overall aggregation.
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  rowGroupingModel={['department']}
+  aggregationModel={{
+    salary: 'sum',
+    age: 'avg',
+  }}
+  defaultGroupingExpansionDepth={1}
+/>
+```
+
+## Initial aggregation state
+
+Use `initialState` to set a default aggregation model without making it controlled:
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  initialState={{
+    aggregation: {
+      model: { salary: 'avg', age: 'min' },
+    },
+  }}
+/>
+```
+
+## Aggregation position
+
+By default, aggregated values appear in footer rows within groups (position `'inline'`) and in the grid's footer row (position `'footer'`). The position is determined by the grid automatically based on whether row grouping is active.
+
+## Disabling aggregation for a column
+
+Prevent a column from being aggregatable by setting the column's `aggregable` field to `false`:
+
+```tsx
+{ field: 'name', headerName: 'Name', aggregable: false }
+```
+
+## Custom aggregation functions
+
+Define your own aggregation functions by passing them to the `aggregationFunctions` prop:
+
+```tsx
+import { GridAggregationFunction } from '@mui/x-data-grid-premium';
+
+const median: GridAggregationFunction<number, number | null> = {
+  apply: ({ values }) => {
+    if (values.length === 0) return null;
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0
+      ? sorted[mid]
+      : (sorted[mid - 1] + sorted[mid]) / 2;
+  },
+  label: 'Median',
+  columnTypes: ['number'],
+};
+
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  aggregationFunctions={{ ...GRID_AGGREGATION_FUNCTIONS, median }}
+  aggregationModel={{ salary: 'median' }}
+/>
+```
+
+## Complete example
+
+```tsx
+import { DataGridPremium, GridColDef } from '@mui/x-data-grid-premium';
+
+const columns: GridColDef[] = [
+  { field: 'name', headerName: 'Name', width: 180, aggregable: false },
+  { field: 'department', headerName: 'Department', width: 150 },
+  { field: 'salary', headerName: 'Salary', type: 'number', width: 120 },
+  { field: 'age', headerName: 'Age', type: 'number', width: 90 },
+];
+
+const rows = [
+  { id: 1, name: 'Alice Smith', department: 'Engineering', salary: 95000, age: 35 },
+  { id: 2, name: 'Bob Jones', department: 'Engineering', salary: 105000, age: 42 },
+  { id: 3, name: 'Carol White', department: 'Design', salary: 82000, age: 28 },
+  { id: 4, name: 'David Brown', department: 'Design', salary: 88000, age: 31 },
+];
+
+export default function AggregatedEmployeeGrid() {
+  return (
+    <div style={{ height: 500, width: '100%' }}>
+      <DataGridPremium
+        rows={rows}
+        columns={columns}
+        rowGroupingModel={['department']}
+        aggregationModel={{
+          salary: 'sum',
+          age: 'avg',
+        }}
+        defaultGroupingExpansionDepth={1}
+      />
+    </div>
+  );
+}
+```
+
+## Next steps
+
+- [Row grouping](/data-grid/row-grouping) — group rows by column values
+- [Export](/data-grid/export) — export aggregated data to CSV or Excel

@@ -1,0 +1,159 @@
+---
+title: "Export Data Grid rows to CSV and Excel"
+description: "Export Data Grid data to CSV with the Community tier or to Excel (XLSX) with a Premium license using the built-in toolbar export menu."
+---
+
+The Data Grid includes built-in export functionality. CSV export is available in all tiers. Excel (XLSX) export requires a Premium license. Both formats are accessible through the toolbar's export menu.
+
+## Enabling the export menu
+
+Add `showToolbar` to display the toolbar, which includes the export button automatically:
+
+```tsx
+<DataGrid rows={rows} columns={columns} showToolbar />
+```
+
+## CSV export
+
+CSV export is available in the Community, Pro, and Premium tiers. It exports all visible rows and columns by default.
+
+### Using the toolbar
+
+With `showToolbar` set, an "Export" button appears in the toolbar. Clicking it opens a menu with "Download as CSV" and "Print" options.
+
+### Programmatic CSV export
+
+Use the grid API to trigger export programmatically:
+
+```tsx
+import { useGridApiRef } from '@mui/x-data-grid';
+
+export default function ExportExample() {
+  const apiRef = useGridApiRef();
+
+  const handleExport = () => {
+    apiRef.current.exportDataAsCsv({
+      fileName: 'employees',
+      delimiter: ',',
+      utf8WithBom: true,
+    });
+  };
+
+  return (
+    <>
+      <button onClick={handleExport}>Export CSV</button>
+      <DataGrid apiRef={apiRef} rows={rows} columns={columns} />
+    </>
+  );
+}
+```
+
+### CSV export options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `fileName` | `string` | `document.title` | File name without extension |
+| `delimiter` | `string` | `','` | Field separator |
+| `utf8WithBom` | `boolean` | `false` | Prefix file with UTF-8 BOM for Excel compatibility |
+| `includeHeaders` | `boolean` | `true` | Include column headers in the first row |
+| `allColumns` | `boolean` | `false` | Include hidden columns |
+| `fields` | `string[]` | — | Limit export to specific column fields |
+
+### Excluding columns from export
+
+Set `disableExport: true` on a column definition to omit it from all exports:
+
+```tsx
+{ field: 'internalId', headerName: 'Internal ID', disableExport: true }
+```
+
+## Excel export (Premium)
+
+Excel export is only available with a `DataGridPremium` instance and a valid Premium license.
+
+<Warning>
+Attempting to use Excel export without a Premium license will throw an error. See the [licensing](/licensing) page.
+</Warning>
+
+### Setup
+
+```bash
+npm install @mui/x-data-grid-premium @mui/x-license
+```
+
+```tsx
+import { LicenseInfo } from '@mui/x-license';
+LicenseInfo.setLicenseKey('YOUR_LICENSE_KEY');
+
+import { DataGridPremium } from '@mui/x-data-grid-premium';
+```
+
+### Using the toolbar
+
+`DataGridPremium` with `showToolbar` adds a "Download as Excel" option to the export menu automatically.
+
+```tsx
+<DataGridPremium rows={rows} columns={columns} showToolbar />
+```
+
+### Programmatic Excel export
+
+```tsx
+import { useGridApiRef } from '@mui/x-data-grid-premium';
+
+export default function ExcelExportExample() {
+  const apiRef = useGridApiRef();
+
+  const handleExport = () => {
+    apiRef.current.exportDataAsExcel({
+      fileName: 'employees-report',
+    });
+  };
+
+  return (
+    <>
+      <button onClick={handleExport}>Export Excel</button>
+      <DataGridPremium apiRef={apiRef} rows={rows} columns={columns} />
+    </>
+  );
+}
+```
+
+### Excel export options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `fileName` | `string` | `document.title` | File name without `.xlsx` extension |
+| `includeHeaders` | `boolean` | `true` | Include column headers |
+| `allColumns` | `boolean` | `false` | Include hidden columns |
+| `fields` | `string[]` | — | Limit export to specific column fields |
+
+## Print export
+
+The toolbar also includes a print option in all tiers. Trigger it programmatically with:
+
+```tsx
+apiRef.current.exportDataAsPrint({
+  hideToolbar: true,
+  hideFooter: true,
+});
+```
+
+## Filtering exported rows
+
+By default, only the rows currently visible (matching the active filter and pagination) are exported. To export all rows regardless of filters, provide a custom `getRowsToExport` function:
+
+```tsx
+import { gridFilteredSortedRowIdsSelector } from '@mui/x-data-grid';
+
+apiRef.current.exportDataAsCsv({
+  getRowsToExport: ({ apiRef: ref }) =>
+    gridFilteredSortedRowIdsSelector(ref),
+});
+```
+
+## Next steps
+
+- [Pro features](/data-grid/pro-features) — column pinning and other Pro-only features
+- [Row grouping](/data-grid/row-grouping) — group rows for grouped export (Premium)
+- [Aggregation](/data-grid/aggregation) — export aggregated values (Premium)

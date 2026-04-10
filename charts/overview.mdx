@@ -1,0 +1,64 @@
+---
+title: "MUI X Charts: React charting components overview"
+description: "Survey every chart type in MUI X — bar, line, scatter, pie, radar, gauge — and learn about Community, Pro, and Premium chart tiers."
+---
+
+MUI X Charts is a React charting library built on top of Material UI. It ships composable SVG components for every common chart type, an integrated tooltip and legend system, and full TypeScript support. The core chart components are available under the MIT Community license. Pro and Premium tiers add advanced chart types such as heatmaps, funnel charts, candlestick charts, and zoom/pan interactions.
+
+## Chart types at a glance
+
+| Component | What it renders |
+|---|---|
+| `BarChart` | Vertical or horizontal bar series, supports stacking |
+| `LineChart` | Line and area series, marks, curve interpolation |
+| `ScatterChart` | X/Y point clouds with optional Z-axis sizing |
+| `SparkLineChart` | Compact inline line or bar chart, no axes |
+| `PieChart` | Arc-based proportional charts, supports donut variant |
+| `RadarChart` | Polygon-based multivariate comparison charts |
+| `Gauge` | Arc-shaped progress/value indicator |
+
+## Composition approach
+
+Every chart component is a convenience wrapper around a set of lower-level building blocks. You can use the wrappers for the common case or compose the primitives directly when you need full control:
+
+- **`ChartsDataProvider`** — context that provides scales, series, and axis state
+- **`ChartsSurface`** — SVG viewport with correct dimensions and margins
+- **`BarPlot` / `LinePlot` / `PiePlot` / …** — series renderers
+- **`ChartsAxis`** / **`ChartsXAxis`** / **`ChartsYAxis`** — axis components
+- **`ChartsLegend`** — legend renderer
+- **`ChartsTooltip`** — tooltip overlay
+- **`ChartsGrid`** — background grid lines
+
+<Note>
+All chart components accept a `slots` and `slotProps` prop that lets you replace any internal sub-component without rewriting the entire chart.
+</Note>
+
+## Licensing tiers
+
+| Tier | Package | Notable additions |
+|------|---------|-------------------|
+| Community (MIT) | `@mui/x-charts` | All core chart types (bar, line, scatter, pie, radar, gauge, sparkline) |
+| Pro (commercial) | `@mui/x-charts-pro` | Zoom/pan, brush slider, heatmap, funnel chart, sankey |
+| Premium (commercial) | `@mui/x-charts-premium` | Candlestick chart, WebGL layer, all Pro features |
+
+All packages require a license key for the Pro and Premium tiers. See the [licensing page](/licensing) for setup instructions.
+
+## Explore the docs
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/charts/quickstart">
+    Install the package and render your first BarChart in under five minutes.
+  </Card>
+  <Card title="Bar, line, and scatter" icon="chart-bar" href="/charts/bar-line-scatter">
+    BarChart, LineChart, ScatterChart, and SparkLineChart with series and stacking examples.
+  </Card>
+  <Card title="Pie and radar" icon="chart-pie" href="/charts/pie-radar">
+    PieChart, RadarChart, and Gauge component reference and usage examples.
+  </Card>
+  <Card title="Axes and legends" icon="sliders" href="/charts/axis-legend">
+    Configure xAxis/yAxis scale types, labels, grid lines, legends, and tooltips.
+  </Card>
+  <Card title="Styling" icon="palette" href="/charts/styling">
+    Apply colors, palettes, sx props, and slot-based customization to any chart.
+  </Card>
+</CardGroup>

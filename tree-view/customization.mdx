@@ -1,0 +1,247 @@
+---
+title: "Customize Tree View items and appearance"
+description: "Override Tree View item slots, control single and multi-selection, manage expansion state, and enable drag-and-drop reordering with RichTreeViewPro."
+---
+
+MUI X Tree View is designed for customization. You can override individual parts of a tree item through the slots API, replace item content entirely using the `useTreeItem` hook, and control selection and expansion programmatically.
+
+## Custom item slots
+
+`TreeItem` exposes a `slots` prop that lets you swap any internal sub-component. Common targets are `label` (the text content) and `content` (the entire clickable row).
+
+The available slots are:
+
+| Slot | Default element | Description |
+|---|---|---|
+| `root` | `<li>` | Item root element |
+| `content` | `<div>` | Clickable row containing icon and label |
+| `iconContainer` | `<div>` | Expand/collapse icon wrapper |
+| `checkbox` | `<button>` | Selection checkbox (when `checkboxSelection` is on) |
+| `label` | `<div>` | Item label text |
+| `labelInput` | `<input>` | Label input when editing is enabled |
+| `groupTransition` | transition | Wrapper for child items |
+| `dragAndDropOverlay` | `<div>` | Drag-and-drop indicator (Pro only) |
+
+The following example replaces the label slot with a custom component that adds a badge:
+
+```tsx
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
+import Chip from '@mui/material/Chip';
+import Box from '@mui/material/Box';
+
+function CustomLabel({ children, count }: { children: React.ReactNode; count?: number }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      {children}
+      {count !== undefined && <Chip label={count} size="small" />}
+    </Box>
+  );
+}
+
+<SimpleTreeView>
+  <TreeItem
+    itemId="src"
+    label="src"
+    slots={{ label: CustomLabel }}
+    slotProps={{ label: { count: 5 } as any }}
+  >
+    <TreeItem itemId="index" label="index.ts" />
+  </TreeItem>
+</SimpleTreeView>
+```
+
+## Fully custom items with `useTreeItem`
+
+When the slots API is not enough, use the `useTreeItem` hook to build an item from scratch. The hook returns prop resolvers for each slot so that accessibility, keyboard navigation, and selection all continue to work correctly.
+
+```tsx
+import * as React from 'react';
+import { useTreeItem, UseTreeItemParameters } from '@mui/x-tree-view/useTreeItem';
+import { TreeItemProvider } from '@mui/x-tree-view/TreeItemProvider';
+
+interface CustomTreeItemProps extends UseTreeItemParameters {
+  children?: React.ReactNode;
+}
+
+const CustomTreeItem = React.forwardRef(function CustomTreeItem(
+  props: CustomTreeItemProps,
+  ref: React.Ref<HTMLLIElement>,
+) {
+  const { id, itemId, label, disabled, children } = props;
+
+  const {
+    getRootProps,
+    getContentProps,
+    getIconContainerProps,
+    getLabelProps,
+    getGroupTransitionProps,
+    getContextProviderProps,
+    status,
+  } = useTreeItem({ id, itemId, label, disabled, rootRef: ref });
+
+  return (
+    <TreeItemProvider {...getContextProviderProps()}>
+      <li {...getRootProps()}>
+        <div
+          {...getContentProps()}
+          style={{ fontWeight: status.selected ? 'bold' : 'normal' }}
+        >
+          <div {...getIconContainerProps()}>
+            {status.expandable ? (status.expanded ? '▾' : '▸') : null}
+          </div>
+          <span {...getLabelProps()} />
+        </div>
+        {children && <ul {...getGroupTransitionProps()}>{children}</ul>}
+      </li>
+    </TreeItemProvider>
+  );
+});
+```
+
+Pass the custom item to `SimpleTreeView` via the `slots` prop:
+
+```tsx
+<SimpleTreeView slots={{ item: CustomTreeItem }}>
+  <CustomTreeItem itemId="root" label="Root">
+    <CustomTreeItem itemId="child" label="Child" />
+  </CustomTreeItem>
+</SimpleTreeView>
+```
+
+<Tip>
+  The `status` object returned by `useTreeItem` includes `expanded`, `selected`, `focused`, `disabled`, `editable`, `editing`, `loading`, and `error` flags. Use them to apply conditional styling without adding your own state.
+</Tip>
+
+## Item selection
+
+### Single selection
+
+Single selection is the default. The selected item ID is exposed via `selectedItems` (controlled) or `defaultSelectedItems` (uncontrolled). Listen for changes with `onSelectedItemsChange`.
+
+```tsx
+const [selected, setSelected] = React.useState<string | null>(null);
+
+<RichTreeView
+  items={items}
+  selectedItems={selected}
+  onSelectedItemsChange={(_, itemId) => setSelected(itemId)}
+/>
+```
+
+### Multi-selection
+
+Pass `multiSelect` to allow selecting more than one item. `selectedItems` and `defaultSelectedItems` accept a `string[]` in this mode.
+
+```tsx
+<RichTreeView
+  items={items}
+  multiSelect
+  defaultSelectedItems={['index', 'app']}
+/>
+```
+
+Enable `checkboxSelection` to show a checkbox beside each label instead of relying on click-to-select:
+
+```tsx
+<RichTreeView items={items} multiSelect checkboxSelection />
+```
+
+### Selection propagation
+
+When `multiSelect` is active, `selectionPropagation` controls cascading behavior:
+
+```tsx
+<RichTreeView
+  items={items}
+  multiSelect
+  checkboxSelection
+  selectionPropagation={{ parents: true, descendants: true }}
+/>
+```
+
+| Option | Behavior |
+|---|---|
+| `descendants: true` | Selecting a parent automatically selects all descendants |
+| `parents: true` | Selecting all descendants of a parent automatically selects that parent |
+
+## Controlling expansion
+
+### Default expansion
+
+Pass an array of item IDs to `defaultExpandedItems` to pre-expand items on first render:
+
+```tsx
+<RichTreeView items={items} defaultExpandedItems={['files', 'src']} />
+```
+
+### Controlled expansion
+
+Use `expandedItems` with `onExpandedItemsChange` to manage expansion state yourself:
+
+```tsx
+const [expanded, setExpanded] = React.useState<string[]>(['files']);
+
+<RichTreeView
+  items={items}
+  expandedItems={expanded}
+  onExpandedItemsChange={(_, itemIds) => setExpanded(itemIds)}
+/>
+```
+
+### Expansion trigger
+
+By default, clicking anywhere on the item row toggles expansion. Set `expansionTrigger="iconContainer"` to restrict expansion to the icon only, so clicking the label does not collapse the item:
+
+```tsx
+<RichTreeView items={items} expansionTrigger="iconContainer" />
+```
+
+## Drag-and-drop reordering (Pro)
+
+`RichTreeViewPro` supports drag-and-drop reordering of items. Enable it with the `itemsReordering` prop. Users can drag any item to a new position in the tree.
+
+<Warning>
+  `itemsReordering` requires an MUI X Pro license. See [licensing](/licensing) for details. Using this feature without a valid license key will render a watermark.
+</Warning>
+
+```tsx
+import { RichTreeViewPro } from '@mui/x-tree-view-pro/RichTreeViewPro';
+
+const [items, setItems] = React.useState(INITIAL_ITEMS);
+
+<RichTreeViewPro
+  items={items}
+  itemsReordering
+  onItemPositionChange={({ itemId, oldPosition, newPosition }) => {
+    // Update your items array based on the new position
+    console.log(`Moved ${itemId} from`, oldPosition, 'to', newPosition);
+  }}
+/>
+```
+
+Use `canMoveItemToNewPosition` to restrict where items can be dropped:
+
+```tsx
+<RichTreeViewPro
+  items={items}
+  itemsReordering
+  canMoveItemToNewPosition={({ itemId, newPosition }) => {
+    // Prevent moving items to the root level
+    return newPosition.parentId !== null;
+  }}
+/>
+```
+
+Use `isItemReorderable` to prevent specific items from being dragged at all:
+
+```tsx
+<RichTreeViewPro
+  items={items}
+  itemsReordering
+  isItemReorderable={(itemId) => itemId !== 'locked-item'}
+/>
+```
+
+<Note>
+  Drag-and-drop is only available on `RichTreeViewPro`. Install `@mui/x-tree-view-pro` and ensure your license key is configured before using `itemsReordering`.
+</Note>

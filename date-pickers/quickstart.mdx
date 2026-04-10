@@ -1,0 +1,90 @@
+---
+title: "Get started with MUI X Date & Time Pickers"
+description: "Install @mui/x-date-pickers, add a date adapter, wrap your app in LocalizationProvider, and render a DatePicker in your React project."
+---
+
+This guide walks you through installing MUI X Date & Time Pickers, configuring the required date adapter, and rendering a controlled `DatePicker` component.
+
+<Steps>
+
+<Step title="Install the package and a date library">
+
+Install `@mui/x-date-pickers` and [Day.js](https://day.js.org). Day.js is recommended for new projects because of its small bundle size, but you can use [Luxon, Moment.js, or date-fns](/date-pickers/localization) instead.
+
+<CodeGroup>
+
+```bash npm
+npm install @mui/x-date-pickers dayjs
+```
+
+```bash yarn
+yarn add @mui/x-date-pickers dayjs
+```
+
+```bash pnpm
+pnpm add @mui/x-date-pickers dayjs
+```
+
+</CodeGroup>
+
+<Note>
+  `@mui/x-date-pickers` requires `@mui/material` and `@mui/system` as peer dependencies. If they are not already installed, add them to your project.
+</Note>
+
+</Step>
+
+<Step title="Wrap your app in LocalizationProvider">
+
+Every picker must be a descendant of `LocalizationProvider`. Pass the `AdapterDayjs` class to the `dateAdapter` prop. Place this provider high in your component tree — typically in your root layout or `App` component.
+
+```tsx App.tsx
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+export default function App({ children }: { children: React.ReactNode }) {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {children}
+    </LocalizationProvider>
+  );
+}
+```
+
+</Step>
+
+<Step title="Render a DatePicker">
+
+Import `DatePicker` and use `useState` to track the selected value. The component automatically renders a desktop popover or mobile dialog based on the pointer type of the device.
+
+```tsx MyForm.tsx
+import * as React from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+export default function MyForm() {
+  const [value, setValue] = React.useState<Dayjs | null>(dayjs('2025-01-01'));
+
+  return (
+    <DatePicker
+      label="Select date"
+      value={value}
+      onChange={(newValue) => setValue(newValue)}
+    />
+  );
+}
+```
+
+</Step>
+
+</Steps>
+
+## What to read next
+
+<Columns cols={2}>
+  <Card title="DatePicker" icon="calendar" href="/date-pickers/date-picker">
+    Explore all DatePicker variants and key props.
+  </Card>
+  <Card title="Localization" icon="globe" href="/date-pickers/localization">
+    Switch date libraries and set a language locale.
+  </Card>
+</Columns>

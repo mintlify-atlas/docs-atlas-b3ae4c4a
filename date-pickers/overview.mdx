@@ -1,0 +1,60 @@
+---
+title: "MUI X Date & Time Pickers overview"
+description: "MUI X Date & Time Pickers provide accessible, customizable date and time input components for React, powered by a flexible date adapter system."
+---
+
+MUI X Date & Time Pickers is a collection of React components that let users select dates, times, and date ranges. The components adapt automatically to desktop and mobile interactions, integrate with your existing MUI theme, and support multiple date libraries through a pluggable adapter system.
+
+## Available components
+
+### Community package (`@mui/x-date-pickers`)
+
+The Community package includes all single-value pickers and their static and responsive variants:
+
+- **DatePicker** — select a single date from a calendar popover
+- **TimePicker** — select a time using a clock or digital clock UI
+- **DateTimePicker** — select both date and time in one picker
+- **StaticDatePicker / StaticTimePicker / StaticDateTimePicker** — inline (always-visible) variants
+- **DesktopDatePicker / MobileDatePicker** — force a specific presentation mode
+- **DigitalClock / MultiSectionDigitalClock** — standalone time selection UIs
+
+### Pro package (`@mui/x-date-pickers-pro`)
+
+The Pro package adds range-selection pickers that require a [commercial license](/licensing):
+
+- **DateRangePicker** — select a start and end date across one or more calendar months
+- **DateTimeRangePicker** — select start and end date-times
+- **TimeRangePicker** — select a time range
+
+## Adapter system
+
+Every picker requires a date library adapter passed to `LocalizationProvider`. The adapter translates between picker internals and your chosen date library. Four adapters ship with the packages:
+
+| Adapter | Date library |
+|---|---|
+| `AdapterDayjs` | [Day.js](https://day.js.org) |
+| `AdapterLuxon` | [Luxon](https://moment.github.io/luxon) |
+| `AdapterMoment` | [Moment.js](https://momentjs.com) |
+| `AdapterDateFns` | [date-fns](https://date-fns.org) |
+
+See [localization](/date-pickers/localization) for setup instructions and language locale support.
+
+## Explore the docs
+
+<Columns cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/date-pickers/quickstart">
+    Install the package, configure an adapter, and render your first DatePicker in minutes.
+  </Card>
+  <Card title="DatePicker" icon="calendar" href="/date-pickers/date-picker">
+    Single-date selection with desktop, mobile, and static variants.
+  </Card>
+  <Card title="TimePicker" icon="clock" href="/date-pickers/time-picker">
+    Time selection with analog clock and digital clock interfaces.
+  </Card>
+  <Card title="DateRangePicker" icon="calendar-range" href="/date-pickers/date-range-picker">
+    Pro component for selecting a start and end date across one or more months.
+  </Card>
+  <Card title="Localization" icon="globe" href="/date-pickers/localization">
+    Plug in a date adapter, set a locale, and translate UI text.
+  </Card>
+</Columns>

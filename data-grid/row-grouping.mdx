@@ -1,0 +1,191 @@
+---
+title: "Row grouping in Data Grid Premium"
+description: "Group DataGridPremium rows by one or more column values using rowGroupingModel, customize the grouping column, and control group expansion depth."
+---
+
+Row grouping lets you aggregate rows that share the same value in one or more columns into collapsible groups. This feature is exclusive to `DataGridPremium` and requires a valid Premium license.
+
+<Warning>
+Row grouping requires a `DataGridPremium` instance and a Premium license key. See the [licensing](/licensing) page.
+</Warning>
+
+## Setup
+
+```bash
+npm install @mui/x-data-grid-premium @mui/x-license
+```
+
+```tsx
+import { LicenseInfo } from '@mui/x-license';
+LicenseInfo.setLicenseKey('YOUR_LICENSE_KEY');
+
+import { DataGridPremium } from '@mui/x-data-grid-premium';
+```
+
+## Basic row grouping
+
+Pass a `rowGroupingModel` array containing the field names to group by. The grid renders a grouping column automatically:
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  rowGroupingModel={['department']}
+/>
+```
+
+The grouping model is an array so you can group by multiple fields — inner groups are created for each subsequent field:
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  rowGroupingModel={['department', 'location']}
+/>
+```
+
+## Controlled grouping model
+
+Use `rowGroupingModel` and `onRowGroupingModelChange` to manage grouping state:
+
+```tsx
+import { useState } from 'react';
+import { DataGridPremium } from '@mui/x-data-grid-premium';
+
+export default function GroupedGrid() {
+  const [rowGroupingModel, setRowGroupingModel] = useState(['department']);
+
+  return (
+    <DataGridPremium
+      rows={rows}
+      columns={columns}
+      rowGroupingModel={rowGroupingModel}
+      onRowGroupingModelChange={(model) => setRowGroupingModel(model)}
+    />
+  );
+}
+```
+
+## Setting initial grouping
+
+Use `initialState` for uncontrolled grouping that does not need to be tracked externally:
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  initialState={{
+    rowGrouping: {
+      model: ['department'],
+    },
+  }}
+/>
+```
+
+## Disabling grouping for a column
+
+Set `groupable: false` on a column definition to prevent users from grouping by that column:
+
+```tsx
+{ field: 'id', groupable: false }
+```
+
+## Customizing the grouping column
+
+Use `groupingColDef` to customize the auto-generated grouping column:
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  rowGroupingModel={['department']}
+  groupingColDef={{
+    headerName: 'Group',
+    width: 200,
+    leafField: 'name',  // Show the 'name' field value on leaf rows
+  }}
+/>
+```
+
+Pass a function when you need different configurations per grouping level:
+
+```tsx
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  rowGroupingModel={['department', 'location']}
+  groupingColDef={(params) => ({
+    headerName: params.fields.join(' / '),
+  })}
+/>
+```
+
+## Controlling group expansion
+
+Set `defaultGroupingExpansionDepth` to auto-expand groups on load:
+
+```tsx
+// Expand all groups
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  rowGroupingModel={['department']}
+  defaultGroupingExpansionDepth={-1}
+/>
+
+// Expand the first level only
+<DataGridPremium
+  rows={rows}
+  columns={columns}
+  rowGroupingModel={['department', 'location']}
+  defaultGroupingExpansionDepth={1}
+/>
+```
+
+## Column definitions for grouped data
+
+Here is a complete example with employee data grouped by department:
+
+```tsx
+import { DataGridPremium, GridColDef } from '@mui/x-data-grid-premium';
+
+const columns: GridColDef[] = [
+  { field: 'name', headerName: 'Name', width: 180 },
+  { field: 'department', headerName: 'Department', width: 150 },
+  { field: 'location', headerName: 'Location', width: 130 },
+  { field: 'salary', headerName: 'Salary', type: 'number', width: 120 },
+];
+
+const rows = [
+  { id: 1, name: 'Alice Smith', department: 'Engineering', location: 'NYC', salary: 95000 },
+  { id: 2, name: 'Bob Jones', department: 'Engineering', location: 'SF', salary: 105000 },
+  { id: 3, name: 'Carol White', department: 'Design', location: 'NYC', salary: 82000 },
+  { id: 4, name: 'David Brown', department: 'Design', location: 'SF', salary: 88000 },
+];
+
+export default function GroupedEmployeeGrid() {
+  return (
+    <div style={{ height: 500, width: '100%' }}>
+      <DataGridPremium
+        rows={rows}
+        columns={columns}
+        rowGroupingModel={['department']}
+        defaultGroupingExpansionDepth={1}
+      />
+    </div>
+  );
+}
+```
+
+## Enabling grouping from the column menu
+
+Users can enable row grouping interactively through the column menu when `showToolbar` is set. The toolbar includes a "Row grouping" panel where users can drag columns to group by them.
+
+```tsx
+<DataGridPremium rows={rows} columns={columns} showToolbar />
+```
+
+## Next steps
+
+- [Aggregation](/data-grid/aggregation) — compute sum, avg, min, max, and count on grouped data
+- [Export](/data-grid/export) — export grouped rows to CSV or Excel

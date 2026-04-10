@@ -1,28 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "MUI X",
+  "projectType": "sdk-library",
+  "projectName": "MUI X",
+  "projectDescription": "A suite of advanced React UI components including Data Grid, Date & Time Pickers, Charts, and Tree View for building complex, data-rich applications.",
   "theme": "maple",
-  "colors": {
-    "primary": "#1cd464",
-    "light": "#040404",
-    "dark": "#0e82f3"
-  },
-  "favicon": "https://media.brand.dev/099349ab-ff22-47a1-a515-4ebe5442c04d.jpg",
-  "logo": {
-    "light": "https://media.brand.dev/6788e3a1-b159-47fd-9a4d-7aa2ad0d7bd9.svg",
-    "dark": "https://media.brand.dev/b0b60f65-6ed3-444f-b147-75ce06baf9c1.svg"
-  },
-  "navbar": {
-    "primary": {
-      "type": "github",
-      "href": "https://github.com/mui/mui-x"
-    }
-  },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/mui/mui-x"
-    }
-  },
+  "primaryColor": "#1cd464",
+  "lightColor": "#040404",
+  "darkColor": "#0e82f3",
   "navigation": {
     "tabs": [
       {
@@ -112,5 +95,40 @@
         ]
       }
     ]
-  }
+  },
+  "keyFeatures": [
+    "Data Grid with sorting, filtering, pagination, editing, and virtualization",
+    "Date and Time Pickers with multiple adapters (Day.js, Luxon, Moment, date-fns)",
+    "Charts: Bar, Line, Pie, Scatter, Radar, Gauge, and Sparkline",
+    "Tree View with drag-and-drop and rich customization",
+    "Community (MIT), Pro, and Premium licensing tiers",
+    "Full TypeScript support with comprehensive type definitions",
+    "Theming and slots API for deep customization",
+    "Server-side data support with lazy loading and infinite scroll",
+    "Excel and CSV export for Data Grid",
+    "Row grouping, aggregation, and pivoting (Premium)"
+  ],
+  "publicApiSurface": [
+    "DataGrid (@mui/x-data-grid)",
+    "DataGridPro (@mui/x-data-grid-pro)",
+    "DataGridPremium (@mui/x-data-grid-premium)",
+    "DatePicker (@mui/x-date-pickers)",
+    "TimePicker (@mui/x-date-pickers)",
+    "DateTimePicker (@mui/x-date-pickers)",
+    "DateRangePicker (@mui/x-date-pickers-pro)",
+    "BarChart (@mui/x-charts)",
+    "LineChart (@mui/x-charts)",
+    "PieChart (@mui/x-charts)",
+    "ScatterChart (@mui/x-charts)",
+    "RadarChart (@mui/x-charts)",
+    "Gauge (@mui/x-charts)",
+    "SparkLineChart (@mui/x-charts)",
+    "SimpleTreeView (@mui/x-tree-view)",
+    "RichTreeView (@mui/x-tree-view)",
+    "useGridApiRef",
+    "useGridApiContext",
+    "GridColDef",
+    "GridRowsProp",
+    "LicenseInfo"
+  ]
 }

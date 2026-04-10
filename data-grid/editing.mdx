@@ -1,0 +1,187 @@
+---
+title: "Inline cell and row editing in the Data Grid"
+description: "Enable editable columns, choose between cell and row edit modes, validate with preProcessEditCellProps, and persist changes with processRowUpdate."
+---
+
+The Data Grid supports inline editing. Users can edit individual cells (cell mode, the default) or edit an entire row at once (row mode). You control which columns are editable, validate input before it is committed, and persist changes through the `processRowUpdate` callback.
+
+## Enabling editing
+
+Mark individual columns as editable by setting `editable: true` on their `GridColDef`:
+
+```tsx
+const columns: GridColDef[] = [
+  { field: 'id', headerName: 'ID', width: 70 },
+  { field: 'name', headerName: 'Name', width: 200, editable: true },
+  { field: 'age', headerName: 'Age', type: 'number', width: 100, editable: true },
+  {
+    field: 'role',
+    headerName: 'Role',
+    type: 'singleSelect',
+    valueOptions: ['admin', 'editor', 'viewer'],
+    width: 130,
+    editable: true,
+  },
+];
+```
+
+Users enter edit mode by double-clicking a cell or pressing Enter when a cell is focused.
+
+## Edit modes
+
+### Cell mode (default)
+
+Each cell is edited independently. This is the default behavior — you do not need to set `editMode` explicitly.
+
+```tsx
+<DataGrid rows={rows} columns={columns} />
+```
+
+### Row mode
+
+In row mode, editing any cell puts the entire row into edit mode. All editable fields in the row become inputs simultaneously, and changes are committed together when the user presses Enter or clicks away.
+
+```tsx
+<DataGrid rows={rows} columns={columns} editMode="row" />
+```
+
+## Persisting changes with processRowUpdate
+
+`processRowUpdate` is called after the user commits an edit. It receives the updated row and the previous row. Return the final row to apply — either the updated row directly or a modified version of it. Return a rejected Promise to cancel the update.
+
+```tsx
+const processRowUpdate = async (newRow, oldRow) => {
+  // Persist to your backend
+  const savedRow = await saveEmployee(newRow);
+  return savedRow;
+};
+
+<DataGrid
+  rows={rows}
+  columns={columns}
+  processRowUpdate={processRowUpdate}
+  onProcessRowUpdateError={(error) => {
+    console.error('Failed to save:', error);
+  }}
+/>
+```
+
+<Note>
+`processRowUpdate` must return either the updated row object or a Promise that resolves to the row object. The grid uses the returned value to update its internal state.
+</Note>
+
+## Validating input with preProcessEditCellProps
+
+Use `preProcessEditCellProps` on a column definition to validate cell values before they are committed. Return the props with `error: true` to block the commit:
+
+```tsx
+const columns: GridColDef[] = [
+  {
+    field: 'email',
+    headerName: 'Email',
+    width: 200,
+    editable: true,
+    preProcessEditCellProps: (params) => {
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(params.props.value);
+      return { ...params.props, error: !isValid };
+    },
+  },
+];
+```
+
+You can also return a Promise from `preProcessEditCellProps` for async validation (for example, checking uniqueness against a server):
+
+```tsx
+preProcessEditCellProps: async (params) => {
+  const isUnique = await checkEmailUniqueness(params.props.value);
+  return { ...params.props, error: !isUnique };
+},
+```
+
+## Conditional editability with isCellEditable
+
+Use `isCellEditable` at the grid level to make cells conditionally editable:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  isCellEditable={(params) => params.row.status !== 'locked'}
+/>
+```
+
+## Full row editing example
+
+```tsx
+import { useState } from 'react';
+import { DataGrid, GridColDef, GridRowModesModel, GridRowModes } from '@mui/x-data-grid';
+
+const columns: GridColDef[] = [
+  { field: 'name', headerName: 'Name', width: 180, editable: true },
+  {
+    field: 'department',
+    headerName: 'Department',
+    type: 'singleSelect',
+    valueOptions: ['Engineering', 'Design', 'Marketing'],
+    width: 160,
+    editable: true,
+  },
+  { field: 'salary', headerName: 'Salary', type: 'number', width: 120, editable: true },
+];
+
+export default function RowEditGrid() {
+  const [rows, setRows] = useState(initialRows);
+
+  const processRowUpdate = (newRow, oldRow) => {
+    setRows((prev) => prev.map((r) => (r.id === newRow.id ? newRow : r)));
+    return newRow;
+  };
+
+  return (
+    <div style={{ height: 400, width: '100%' }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        editMode="row"
+        processRowUpdate={processRowUpdate}
+      />
+    </div>
+  );
+}
+```
+
+## Custom edit cell renderer
+
+Replace the default edit input with a custom component using `renderEditCell`:
+
+```tsx
+import { GridRenderEditCellParams, useGridApiContext } from '@mui/x-data-grid';
+import Rating from '@mui/material/Rating';
+
+function RatingEditCell(props: GridRenderEditCellParams) {
+  const { id, value, field } = props;
+  const apiRef = useGridApiContext();
+
+  const handleChange = (event, newValue) => {
+    apiRef.current.setEditCellValue({ id, field, value: newValue });
+  };
+
+  return <Rating value={Number(value)} onChange={handleChange} />;
+}
+
+const columns: GridColDef[] = [
+  {
+    field: 'rating',
+    headerName: 'Rating',
+    width: 160,
+    editable: true,
+    renderEditCell: (params) => <RatingEditCell {...params} />,
+  },
+];
+```
+
+## Next steps
+
+- [Rows](/data-grid/rows) — configure row selection and row height
+- [Columns](/data-grid/columns) — all column definition options
+- [Server-side data](/data-grid/server-side-data) — persist edits via the `dataSource.updateRow` API

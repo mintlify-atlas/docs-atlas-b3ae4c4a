@@ -1,0 +1,186 @@
+---
+title: "Data Grid Pro: advanced features for power users"
+description: "DataGridPro adds column pinning, column reordering, multi-column sort and filter, row reordering, and row pinning — all requiring a commercial Pro license."
+---
+
+`DataGridPro` extends the Community `DataGrid` with features designed for complex data management applications. All Pro features require a valid commercial license key.
+
+<Warning>
+Using Pro features without a valid license key will display a watermark in production. See the [licensing](/licensing) page to obtain a key.
+</Warning>
+
+## Installation and setup
+
+Install the Pro package:
+
+```bash
+npm install @mui/x-data-grid-pro @mui/material @emotion/react @emotion/styled
+```
+
+Register your license key once, at the top level of your application (before any Data Grid renders):
+
+```tsx
+import { LicenseInfo } from '@mui/x-license';
+
+LicenseInfo.setLicenseKey('YOUR_LICENSE_KEY');
+```
+
+Then import `DataGridPro` instead of `DataGrid`:
+
+```tsx
+import { DataGridPro } from '@mui/x-data-grid-pro';
+```
+
+The `DataGridPro` component accepts all props from `DataGrid` plus the Pro-specific props documented below.
+
+## Column pinning
+
+Pin columns to the left or right edge of the grid so they remain visible while the user scrolls horizontally.
+
+```tsx
+<DataGridPro
+  rows={rows}
+  columns={columns}
+  pinnedColumns={{
+    left: ['id', 'name'],
+    right: ['actions'],
+  }}
+/>
+```
+
+Respond to pin changes with `onPinnedColumnsChange`:
+
+```tsx
+const [pinnedColumns, setPinnedColumns] = useState({ left: ['id'] });
+
+<DataGridPro
+  rows={rows}
+  columns={columns}
+  pinnedColumns={pinnedColumns}
+  onPinnedColumnsChange={(model) => setPinnedColumns(model)}
+/>
+```
+
+Disable pinning for a specific column by setting `pinnable: false` on its `GridColDef`:
+
+```tsx
+{ field: 'description', pinnable: false }
+```
+
+Disable column pinning entirely:
+
+```tsx
+<DataGridPro rows={rows} columns={columns} disableColumnPinning />
+```
+
+## Column reordering
+
+Users can drag column headers to reorder them. This is enabled by default in `DataGridPro`.
+
+Prevent a specific column from being reordered:
+
+```tsx
+{ field: 'id', disableReorder: true }
+```
+
+Prevent the column from jumping back if the user drags it outside the grid bounds:
+
+```tsx
+<DataGridPro rows={rows} columns={columns} keepColumnPositionIfDraggedOutside />
+```
+
+## Multi-column sorting
+
+The Community tier supports sorting by one column at a time. `DataGridPro` supports sorting by multiple columns simultaneously. Hold Shift and click additional column headers to add them to the sort model.
+
+```tsx
+<DataGridPro
+  rows={rows}
+  columns={columns}
+  sortModel={[
+    { field: 'department', sort: 'asc' },
+    { field: 'lastName', sort: 'asc' },
+  ]}
+/>
+```
+
+## Multi-column filtering
+
+Pro supports multiple simultaneous column filters. Each filter item can be combined using AND (default) or OR logic:
+
+```tsx
+import { DataGridPro, GridFilterModel } from '@mui/x-data-grid-pro';
+
+const filterModel: GridFilterModel = {
+  items: [
+    { field: 'department', operator: 'equals', value: 'Engineering' },
+    { field: 'salary', operator: '>=', value: '90000' },
+  ],
+  logicOperator: 'and',
+};
+
+<DataGridPro rows={rows} columns={columns} filterModel={filterModel} />
+```
+
+## Row reordering
+
+Enable drag-and-drop row reordering with the `rowReordering` prop. Listen to order changes with `onRowOrderChange`:
+
+```tsx
+<DataGridPro
+  rows={rows}
+  columns={columns}
+  rowReordering
+  onRowOrderChange={(params) => {
+    console.log(
+      `Moved row ${params.row.id} from index ${params.oldIndex} to ${params.targetIndex}`
+    );
+  }}
+/>
+```
+
+Restrict which rows can be reordered using `isRowReorderable`:
+
+```tsx
+<DataGridPro
+  rows={rows}
+  columns={columns}
+  rowReordering
+  isRowReorderable={(params) => !params.row.locked}
+/>
+```
+
+## Row pinning
+
+Pin specific rows to the top or bottom of the grid so they are always visible:
+
+```tsx
+<DataGridPro
+  rows={rows}
+  columns={columns}
+  pinnedRows={{
+    top: [{ id: 'header-row', name: 'Summary', salary: null }],
+    bottom: [{ id: 'total-row', name: 'Total', salary: 282000 }],
+  }}
+/>
+```
+
+## Column resizing
+
+Column resizing is available in both Community and Pro. In Pro, set `disableColumnResize` to disable it:
+
+```tsx
+<DataGridPro rows={rows} columns={columns} disableColumnResize />
+```
+
+Disable resizing for a specific column:
+
+```tsx
+{ field: 'id', resizable: false }
+```
+
+## Next steps
+
+- [Server-side data](/data-grid/server-side-data) — use the `dataSource` API for server-driven pagination, sorting, and filtering
+- [Row grouping](/data-grid/row-grouping) — group rows by column values (Premium)
+- [Aggregation](/data-grid/aggregation) — compute sum, avg, min, max per group (Premium)

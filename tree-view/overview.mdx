@@ -1,0 +1,78 @@
+---
+title: "MUI X Tree View: hierarchical data in React"
+description: "Display and interact with hierarchical data in React using MUI X Tree View. Supports simple JSX composition and data-driven rendering with a Pro tier."
+---
+
+MUI X Tree View provides two React components for rendering hierarchical data as an expandable, navigable tree structure. Use `SimpleTreeView` for JSX-composed trees or `RichTreeView` for data-driven trees powered by an `items` array. The Pro tier adds drag-and-drop reordering via `RichTreeViewPro`.
+
+## Components at a glance
+
+| Component | Items source | Drag-and-drop | License |
+|---|---|---|---|
+| `SimpleTreeView` | JSX children (`<TreeItem>`) | No | Community |
+| `RichTreeView` | `items` prop (array) | No | Community |
+| `RichTreeViewPro` | `items` prop (array) | Yes | Pro |
+
+### SimpleTreeView
+
+`SimpleTreeView` renders a tree from `<TreeItem>` children passed as JSX. It is the right choice when the tree structure is known at render time and you want full control over each node through composition.
+
+```tsx
+import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
+
+<SimpleTreeView>
+  <TreeItem itemId="docs" label="Documentation">
+    <TreeItem itemId="getting-started" label="Getting started" />
+    <TreeItem itemId="api" label="API reference" />
+  </TreeItem>
+</SimpleTreeView>
+```
+
+### RichTreeView
+
+`RichTreeView` renders a tree from a flat or nested data array passed via the `items` prop. It is the right choice for dynamic data fetched from an API.
+
+```tsx
+import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
+
+const items = [
+  {
+    id: 'docs',
+    label: 'Documentation',
+    children: [
+      { id: 'getting-started', label: 'Getting started' },
+      { id: 'api', label: 'API reference' },
+    ],
+  },
+];
+
+<RichTreeView items={items} />
+```
+
+### TreeItem
+
+`TreeItem` is the building block for both components. It renders a single node with an expand/collapse icon, label, and optional checkbox. Its appearance and behaviour can be customised through the `slots` and `slotProps` API, or by using the `useTreeItem` hook to build a fully custom item.
+
+### Pro features
+
+`RichTreeViewPro` (available with an MUI X Pro license) extends `RichTreeView` with:
+
+- **Drag-and-drop reordering** — users can drag items to new positions within the tree using the `itemsReordering` prop
+- **Virtualization** — efficient rendering of large trees (enabled by default)
+- **Lazy loading** — load children on demand via a `dataSource` prop
+
+<Note>
+  Pro and Premium features require a valid license key. See [licensing](/licensing) for details.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/tree-view/quickstart">
+    Install the package and render your first tree in minutes.
+  </Card>
+  <Card title="Customization" icon="paintbrush" href="/tree-view/customization">
+    Style items, control selection and expansion, and add drag-and-drop.
+  </Card>
+</CardGroup>

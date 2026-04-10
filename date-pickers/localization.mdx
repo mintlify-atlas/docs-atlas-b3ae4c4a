@@ -1,0 +1,264 @@
+---
+title: "Localize MUI X Pickers with date adapters"
+description: "Configure LocalizationProvider with AdapterDayjs, AdapterLuxon, AdapterMoment, or AdapterDateFns, and set adapterLocale to localize MUI X pickers."
+---
+
+MUI X pickers rely on `LocalizationProvider` to supply a date adapter and optional locale settings. The adapter acts as an abstraction layer between the picker logic and the underlying date library. You can choose from four adapters depending on which date library your project already uses.
+
+## Available adapters
+
+| Adapter | Import path | Peer dependency |
+|---|---|---|
+| `AdapterDayjs` | `@mui/x-date-pickers/AdapterDayjs` | `dayjs` |
+| `AdapterLuxon` | `@mui/x-date-pickers/AdapterLuxon` | `luxon` |
+| `AdapterMoment` | `@mui/x-date-pickers/AdapterMoment` | `moment` |
+| `AdapterDateFns` | `@mui/x-date-pickers/AdapterDateFns` | `date-fns` (v3) |
+
+<Warning>
+  Always import adapters from `@mui/x-date-pickers` (or `@mui/x-date-pickers-pro`), not from `@date-io` directly. Using `@date-io` adapters will throw a runtime error.
+</Warning>
+
+## Adapter setup
+
+Select the tab for your preferred date library.
+
+<Tabs>
+
+<Tab title="Day.js">
+
+Install Day.js:
+
+<CodeGroup>
+
+```bash npm
+npm install dayjs
+```
+
+```bash yarn
+yarn add dayjs
+```
+
+```bash pnpm
+pnpm add dayjs
+```
+
+</CodeGroup>
+
+Configure the provider:
+
+```tsx
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+<LocalizationProvider dateAdapter={AdapterDayjs}>
+  {/* your picker components */}
+</LocalizationProvider>
+```
+
+</Tab>
+
+<Tab title="Luxon">
+
+Install Luxon:
+
+<CodeGroup>
+
+```bash npm
+npm install luxon
+```
+
+```bash yarn
+yarn add luxon
+```
+
+```bash pnpm
+pnpm add luxon
+```
+
+</CodeGroup>
+
+Configure the provider:
+
+```tsx
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+
+<LocalizationProvider dateAdapter={AdapterLuxon}>
+  {/* your picker components */}
+</LocalizationProvider>
+```
+
+</Tab>
+
+<Tab title="Moment.js">
+
+Install Moment.js:
+
+<CodeGroup>
+
+```bash npm
+npm install moment
+```
+
+```bash yarn
+yarn add moment
+```
+
+```bash pnpm
+pnpm add moment
+```
+
+</CodeGroup>
+
+Configure the provider:
+
+```tsx
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+
+<LocalizationProvider dateAdapter={AdapterMoment}>
+  {/* your picker components */}
+</LocalizationProvider>
+```
+
+</Tab>
+
+<Tab title="date-fns">
+
+Install date-fns v3:
+
+<CodeGroup>
+
+```bash npm
+npm install date-fns
+```
+
+```bash yarn
+yarn add date-fns
+```
+
+```bash pnpm
+pnpm add date-fns
+```
+
+</CodeGroup>
+
+Configure the provider:
+
+```tsx
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
+<LocalizationProvider dateAdapter={AdapterDateFns}>
+  {/* your picker components */}
+</LocalizationProvider>
+```
+
+<Note>
+  `AdapterDateFns` targets date-fns v3. For date-fns v2, use `AdapterDateFnsV2` from the same import path.
+</Note>
+
+</Tab>
+
+</Tabs>
+
+## Language locales with adapterLocale
+
+Pass `adapterLocale` to `LocalizationProvider` to change the language used for month names, weekday labels, and other calendar text. The value type depends on your date library.
+
+<Tabs>
+
+<Tab title="Day.js">
+
+```tsx
+import 'dayjs/locale/fr';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
+  {/* calendar labels and formats will use French */}
+</LocalizationProvider>
+```
+
+</Tab>
+
+<Tab title="Luxon">
+
+```tsx
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+
+<LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="de">
+  {/* calendar labels and formats will use German */}
+</LocalizationProvider>
+```
+
+</Tab>
+
+<Tab title="Moment.js">
+
+```tsx
+import 'moment/locale/ja';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+
+<LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="ja">
+  {/* calendar labels and formats will use Japanese */}
+</LocalizationProvider>
+```
+
+</Tab>
+
+<Tab title="date-fns">
+
+```tsx
+import { es } from 'date-fns/locale';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
+<LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+  {/* calendar labels and formats will use Spanish */}
+</LocalizationProvider>
+```
+
+<Note>
+  For date-fns, pass the locale object (e.g. `es`, `de`) rather than a locale string.
+</Note>
+
+</Tab>
+
+</Tabs>
+
+## Translating component text
+
+`adapterLocale` changes date formatting but not the UI strings inside the picker (for example, toolbar labels and button text). Use `localeText` to override those.
+
+```tsx
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { frFR } from '@mui/x-date-pickers/locales';
+
+<LocalizationProvider
+  dateAdapter={AdapterDayjs}
+  adapterLocale="fr"
+  localeText={frFR.components.MuiLocalizationProvider.defaultProps.localeText}
+>
+  {/* fully localized pickers */}
+</LocalizationProvider>
+```
+
+Built-in locale text objects are exported from `@mui/x-date-pickers/locales`. You can also pass a partial `localeText` object to override individual strings without replacing the entire locale.
+
+## LocalizationProvider props
+
+| Prop | Type | Description |
+|---|---|---|
+| `dateAdapter` | `Adapter class` | The date adapter class (required for pickers to work). |
+| `adapterLocale` | `string \| object` | Language locale for date formatting. Type depends on the date library. |
+| `dateFormats` | `Partial<AdapterFormats>` | Override specific date format tokens used by the pickers. |
+| `dateLibInstance` | `any` | A pre-configured instance of the date library (e.g. a timezone-aware Moment instance). |
+| `localeText` | `PickersInputLocaleText` | Override UI strings for buttons, toolbars, and other picker text. |
+
+<Tip>
+  You can nest a second `LocalizationProvider` deeper in your component tree to override the adapter or locale for a specific section of your app, without affecting the global configuration.
+</Tip>

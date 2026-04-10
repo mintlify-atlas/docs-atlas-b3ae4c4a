@@ -1,0 +1,132 @@
+---
+title: "Automate MUI X upgrades with codemods"
+description: "Use @mui/x-codemod to run preset-safe and targeted codemods that automate prop renames, import changes, and API removals when upgrading MUI X."
+---
+
+`@mui/x-codemod` is a collection of codemod scripts built on [jscodeshift](https://github.com/facebook/jscodeshift) that automate the mechanical parts of upgrading MUI X. Run them against your source directory before making manual migration changes.
+
+## Run a codemod
+
+<CodeGroup>
+
+```bash npx
+npx @mui/x-codemod@latest <codemod> <path|folder>
+```
+
+```bash pnpm
+pnpm dlx @mui/x-codemod@latest <codemod> <path|folder>
+```
+
+</CodeGroup>
+
+Replace `<codemod>` with a preset name or a specific transform path, and `<path|folder>` with the directory or file you want to transform.
+
+## preset-safe for v9
+
+`preset-safe` is the recommended starting point for any major version migration. It combines all important transformers for a given version into a single command.
+
+<Warning>
+  Run `preset-safe` only once per major version upgrade. Running it multiple times may produce incorrect results.
+</Warning>
+
+```bash
+npx @mui/x-codemod@latest v9.0.0/preset-safe src
+```
+
+The v9 `preset-safe` applies codemods for:
+
+- Charts (`preset-safe-for-charts`)
+- Date Pickers (`preset-safe-for-pickers`)
+- Data Grid (individual transforms, see below)
+
+## Run codemods for a specific package
+
+If you only want to migrate one MUI X package, run the package-specific preset:
+
+<Tabs>
+  <Tab title="Charts">
+    ```bash
+    npx @mui/x-codemod@latest v9.0.0/charts/preset-safe src
+    ```
+  </Tab>
+  <Tab title="Date Pickers">
+    ```bash
+    npx @mui/x-codemod@latest v9.0.0/pickers/preset-safe src
+    ```
+  </Tab>
+  <Tab title="Data Grid">
+    ```bash
+    npx @mui/x-codemod@latest v9.0.0/data-grid/remove-stabilized-experimentalFeatures src
+    ```
+  </Tab>
+</Tabs>
+
+## Individual Data Grid codemods
+
+For finer control, run individual transforms. For example, to remove the now-stabilized `experimentalFeatures` prop:
+
+```bash
+npx @mui/x-codemod@latest v9.0.0/data-grid/remove-stabilized-experimentalFeatures src
+```
+
+This removes the `charts` property from `experimentalFeatures` on `DataGridPremium`. If `charts` is the only property, the entire prop is removed:
+
+```diff
+ <DataGridPremium
+-  experimentalFeatures={{ charts: true }}
+   chartsIntegration
+ />
+```
+
+## Migrate from an older version
+
+For v8 migrations, use the v8 preset-safe:
+
+```bash
+npx @mui/x-codemod@latest v8.0.0/preset-safe src
+```
+
+<Note>
+  If you are more than one major version behind, run codemods incrementally — one major version at a time — rather than jumping directly to the latest preset.
+</Note>
+
+## Advanced options
+
+### Pass options to jscodeshift
+
+Use `--jscodeshift` to forward flags directly to jscodeshift:
+
+```bash
+# Run single-threaded (useful for debugging)
+npx @mui/x-codemod@latest v9.0.0/preset-safe src --jscodeshift=--run-in-band
+
+# Dry run — preview changes without writing files
+npx @mui/x-codemod@latest v9.0.0/preset-safe src --jscodeshift=--dry --jscodeshift=--print
+```
+
+### Change the parser
+
+The default parser is `tsx`. To use a different parser:
+
+```bash
+npx @mui/x-codemod@latest v9.0.0/preset-safe src --parser=babel
+```
+
+### Control quote style
+
+Pass `printOptions` through jscodeshift to control output formatting:
+
+```bash
+npx @mui/x-codemod@latest v9.0.0/preset-safe src --jscodeshift="--printOptions='{\"quote\":\"double\"}'"
+```
+
+## Related
+
+<CardGroup>
+  <Card title="Migration overview" icon="map" href="/migration/overview">
+    MUI X versioning policy and step-by-step upgrade approach.
+  </Card>
+  <Card title="Licensing" icon="key" href="/licensing">
+    Pro and Premium license requirements across versions.
+  </Card>
+</CardGroup>

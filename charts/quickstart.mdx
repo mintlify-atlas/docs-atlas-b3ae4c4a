@@ -1,0 +1,96 @@
+---
+title: "Get started with MUI X Charts"
+description: "Install @mui/x-charts and its peer dependencies, then render a responsive BarChart with labeled axes and multiple series in minutes."
+---
+
+MUI X Charts requires React 17+ and `@mui/material` as peer dependencies. The package is published under the MIT Community license — no license key is needed.
+
+## Installation
+
+<Steps>
+  <Step title="Install the package">
+    Add `@mui/x-charts` and its peer dependencies to your project.
+
+    <CodeGroup>
+
+    ```bash npm
+    npm install @mui/x-charts @mui/material @emotion/react @emotion/styled
+    ```
+
+    ```bash yarn
+    yarn add @mui/x-charts @mui/material @emotion/react @emotion/styled
+    ```
+
+    ```bash pnpm
+    pnpm add @mui/x-charts @mui/material @emotion/react @emotion/styled
+    ```
+
+    </CodeGroup>
+
+    <Note>
+    `@mui/material` and the Emotion packages are required peer dependencies. If your project already uses MUI Material you can skip them.
+    </Note>
+  </Step>
+
+  <Step title="Render a BarChart">
+    Import `BarChart` from `@mui/x-charts` and pass `series` and `xAxis` data.
+
+    ```tsx
+    import { BarChart } from '@mui/x-charts/BarChart';
+
+    export default function SalesChart() {
+      return (
+        <BarChart
+          series={[
+            { data: [4, 7, 2, 9, 5], label: 'Apples' },
+            { data: [3, 6, 8, 4, 7], label: 'Oranges' },
+          ]}
+          xAxis={[{ data: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], scaleType: 'band' }]}
+          width={500}
+          height={300}
+        />
+      );
+    }
+    ```
+
+    `series` is an array of `BarSeries` objects — each one requires at least a `data` array of numbers. `xAxis` takes an array of axis configurations; for categorical bar charts use `scaleType: 'band'`.
+  </Step>
+
+  <Step title="Make the chart responsive">
+    Omit `width` and `height` to let the chart fill its container. Wrap it in a sized element.
+
+    ```tsx
+    import { BarChart } from '@mui/x-charts/BarChart';
+
+    export default function ResponsiveSalesChart() {
+      return (
+        <div style={{ width: '100%', height: 300 }}>
+          <BarChart
+            series={[{ data: [4, 7, 2, 9, 5], label: 'Apples' }]}
+            xAxis={[{ data: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], scaleType: 'band' }]}
+          />
+        </div>
+      );
+    }
+    ```
+
+    When `width` and `height` are omitted the chart observes its container size via a `ResizeObserver`.
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Bar, line, and scatter" href="/charts/bar-line-scatter">
+    Explore stacking, area variants, and scatter point clouds.
+  </Card>
+  <Card title="Pie and radar" href="/charts/pie-radar">
+    Render proportional and multivariate data with PieChart and RadarChart.
+  </Card>
+  <Card title="Axes and legends" href="/charts/axis-legend">
+    Customize scale types, labels, and tooltip behavior.
+  </Card>
+  <Card title="Styling" href="/charts/styling">
+    Apply custom colors, palettes, and slot overrides.
+  </Card>
+</CardGroup>

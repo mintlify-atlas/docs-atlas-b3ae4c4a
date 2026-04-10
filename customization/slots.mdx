@@ -1,0 +1,205 @@
+---
+title: "MUI X slots API: override internal components"
+description: "Learn how slots and slotProps work across MUI X components, with reference examples for DataGrid and DatePicker slot customization."
+---
+
+MUI X components are built from composable sub-components called **slots**. The slots API gives you a consistent, first-class way to replace or configure any internal piece of a component — toolbar, footer, pagination, action bar, calendar header, and more — across every MUI X package.
+
+## What is a slot?
+
+A slot is a named position in a component's render tree where you can inject a custom React component. Each MUI X component documents its available slots in its API reference page.
+
+There are two kinds of slots:
+
+- **UI primitive slots** (`baseButton`, `baseSelect`, …) — accept generic props, designed to be swapped for a different design system's primitives.
+- **Feature-specific slots** (`toolbar`, `calendarHeader`, `item`, …) — accept props specific to that part of the UI and can reflect the component's internal state.
+
+## How slots and slotProps work together
+
+| Prop | Purpose |
+| :--- | :--- |
+| `slots` | Replace a slot's component entirely with your own React component. |
+| `slotProps` | Pass props to a slot component (built-in or custom) without replacing it. |
+
+Both props accept an object keyed by slot name. You can use them independently or together.
+
+```tsx
+import { DataGrid } from '@mui/x-data-grid';
+
+<DataGrid
+  rows={rows}
+  columns={columns}
+  slots={{ toolbar: MyToolbar }}
+  slotProps={{ toolbar: { showQuickFilter: true } }}
+/>
+```
+
+<Note>
+  Always define slot components outside the render tree. An inline or `useCallback`-wrapped definition creates a new reference on each render, causing React to remount the slot and lose internal state.
+</Note>
+
+## DataGrid slots
+
+<Tabs>
+  <Tab title="toolbar">
+    The `toolbar` slot renders above the grid rows. Override it to add custom controls, headings, or export buttons.
+
+    ```tsx
+    import {
+      DataGrid,
+      GridToolbarContainer,
+      GridToolbarExport,
+      GridToolbarFilterButton,
+    } from '@mui/x-data-grid';
+
+    function CustomToolbar() {
+      return (
+        <GridToolbarContainer>
+          <GridToolbarFilterButton />
+          <GridToolbarExport />
+        </GridToolbarContainer>
+      );
+    }
+
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      slots={{ toolbar: CustomToolbar }}
+    />
+    ```
+  </Tab>
+  <Tab title="footer">
+    The `footer` slot replaces the entire area below the grid rows, including the row count and pagination.
+
+    ```tsx
+    import { DataGrid } from '@mui/x-data-grid';
+
+    function CustomFooter() {
+      return (
+        <div style={{ padding: '8px 16px', borderTop: '1px solid #e0e0e0' }}>
+          Custom footer content
+        </div>
+      );
+    }
+
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      slots={{ footer: CustomFooter }}
+    />
+    ```
+  </Tab>
+  <Tab title="noRowsOverlay">
+    The `noRowsOverlay` slot renders when the grid has zero rows. Use it to display an empty state illustration or call-to-action.
+
+    ```tsx
+    import { DataGrid } from '@mui/x-data-grid';
+
+    function NoRowsOverlay() {
+      return (
+        <div style={{ textAlign: 'center', padding: 40 }}>
+          <p>No records found.</p>
+        </div>
+      );
+    }
+
+    <DataGrid
+      rows={[]}
+      columns={columns}
+      slots={{ noRowsOverlay: NoRowsOverlay }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Common DataGrid slot names
+
+| Slot name | Description |
+| :--- | :--- |
+| `toolbar` | Area above the rows — filters, export, column selector. |
+| `footer` | Area below the rows — row count and pagination. |
+| `pagination` | Pagination control inside the footer. |
+| `noRowsOverlay` | Displayed when the grid has no rows. |
+| `noResultsOverlay` | Displayed when filtering returns no results. |
+| `loadingOverlay` | Displayed while `loading` is `true`. |
+| `columnMenu` | Context menu shown on column header right-click. |
+
+## DatePicker slots
+
+<Tabs>
+  <Tab title="actionBar">
+    The `actionBar` slot renders below the calendar view. Use `slotProps` to configure built-in actions, or replace it entirely.
+
+    ```tsx
+    import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+    // Configure via slotProps
+    <DatePicker
+      slotProps={{
+        actionBar: {
+          actions: ['clear', 'today', 'accept'],
+        },
+      }}
+    />
+
+    // Or replace with a custom component
+    function CustomActionBar({ onAccept, onClear }) {
+      return (
+        <div style={{ display: 'flex', gap: 8, padding: 8 }}>
+          <button onClick={onClear}>Clear</button>
+          <button onClick={onAccept}>OK</button>
+        </div>
+      );
+    }
+
+    <DatePicker slots={{ actionBar: CustomActionBar }} />
+    ```
+
+    Built-in `PickersActionBar` actions: `accept`, `cancel`, `clear`, `today`.
+  </Tab>
+  <Tab title="textField">
+    The `textField` slot is the input that opens the picker. Replace it with any component that accepts standard input props.
+
+    ```tsx
+    import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+    import TextField from '@mui/material/TextField';
+
+    <DatePicker
+      slots={{ textField: TextField }}
+      slotProps={{
+        textField: {
+          variant: 'filled',
+          size: 'small',
+          fullWidth: true,
+        },
+      }}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+### Common DatePicker slot names
+
+| Slot name | Description |
+| :--- | :--- |
+| `textField` | The input that opens the picker. |
+| `actionBar` | Buttons below the calendar (clear, today, accept, cancel). |
+| `layout` | Wrapper around the entire picker popup. |
+| `toolbar` | Header above the calendar showing the selected value. |
+| `calendarHeader` | Month/year navigation header inside the calendar. |
+| `day` | Individual day cell in the calendar. |
+| `shortcuts` | Shortcuts panel (e.g., "Last 7 days", "This month"). |
+
+## Related
+
+<CardGroup>
+  <Card title="Custom components" icon="wrench" href="/customization/custom-components">
+    Full guide on implementing and typing slot components.
+  </Card>
+  <Card title="Theming MUI X" icon="palette" href="/customization/theming">
+    Apply global style overrides without using slots.
+  </Card>
+  <Card title="Licensing" icon="key" href="/licensing">
+    Some MUI X components require a commercial license.
+  </Card>
+</CardGroup>

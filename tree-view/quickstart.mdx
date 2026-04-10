@@ -1,0 +1,142 @@
+---
+title: "Get started with MUI X Tree View"
+description: "Install MUI X Tree View, render a SimpleTreeView with TreeItem children, and render a RichTreeView from a data array in a few steps."
+---
+
+This guide walks you through installing MUI X Tree View and rendering your first tree using both `SimpleTreeView` and `RichTreeView`.
+
+## Prerequisites
+
+MUI X Tree View requires React 17 or later and `@mui/material` v5 or later. If you have not installed Material UI yet, follow the [Material UI installation guide](https://mui.com/material-ui/getting-started/installation/) first.
+
+## Installation
+
+<Steps>
+  <Step title="Install the package">
+    Install `@mui/x-tree-view` from your package manager of choice.
+
+    <CodeGroup>
+
+    ```bash npm
+    npm install @mui/x-tree-view
+    ```
+
+    ```bash yarn
+    yarn add @mui/x-tree-view
+    ```
+
+    ```bash pnpm
+    pnpm add @mui/x-tree-view
+    ```
+
+    </CodeGroup>
+
+    <Note>
+      To use Pro features such as drag-and-drop reordering, install `@mui/x-tree-view-pro` instead and provide a valid license key. See [licensing](/licensing).
+    </Note>
+  </Step>
+
+  <Step title="Render a SimpleTreeView">
+    `SimpleTreeView` accepts `<TreeItem>` elements as JSX children. Each `TreeItem` requires a unique `itemId` and a `label`.
+
+    ```tsx
+    import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
+    import { TreeItem } from '@mui/x-tree-view/TreeItem';
+
+    export default function BasicTree() {
+      return (
+        <SimpleTreeView>
+          <TreeItem itemId="files" label="Files">
+            <TreeItem itemId="index" label="index.ts" />
+            <TreeItem itemId="app" label="app.tsx" />
+          </TreeItem>
+          <TreeItem itemId="node_modules" label="node_modules">
+            <TreeItem itemId="react" label="react" />
+          </TreeItem>
+        </SimpleTreeView>
+      );
+    }
+    ```
+
+    Items are collapsed by default. Click an item or its expand icon to toggle it. Pass `defaultExpandedItems` with an array of item IDs to pre-expand specific items on mount.
+
+    ```tsx
+    <SimpleTreeView defaultExpandedItems={['files']}>
+      {/* ... */}
+    </SimpleTreeView>
+    ```
+
+    <Tip>
+      `SimpleTreeView` does not support an `items` prop. Pass items as JSX children using `<TreeItem>`. Use `RichTreeView` if you need a data-driven approach.
+    </Tip>
+  </Step>
+
+  <Step title="Render a RichTreeView">
+    `RichTreeView` renders a tree from a data array. Pass an array of objects with at least `id` and `label` fields. Nest children using a `children` array.
+
+    ```tsx
+    import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
+
+    const FILE_SYSTEM = [
+      {
+        id: 'files',
+        label: 'Files',
+        children: [
+          { id: 'index', label: 'index.ts' },
+          { id: 'app', label: 'app.tsx' },
+        ],
+      },
+      {
+        id: 'node_modules',
+        label: 'node_modules',
+        children: [
+          { id: 'react', label: 'react' },
+        ],
+      },
+    ];
+
+    export default function DataDrivenTree() {
+      return <RichTreeView items={FILE_SYSTEM} />;
+    }
+    ```
+
+    If your data uses different field names, use `getItemId` and `getItemLabel` to map them.
+
+    ```tsx
+    <RichTreeView
+      items={FILE_SYSTEM}
+      getItemId={(item) => item.path}
+      getItemLabel={(item) => item.name}
+    />
+    ```
+  </Step>
+
+  <Step title="Enable multi-selection (optional)">
+    Both components support single-selection (default) and multi-selection. Pass `multiSelect` to allow users to select more than one item at a time.
+
+    ```tsx
+    <RichTreeView items={FILE_SYSTEM} multiSelect />
+    ```
+
+    Use `defaultSelectedItems` for uncontrolled initial selection, or `selectedItems` with `onSelectedItemsChange` for a controlled approach.
+
+    ```tsx
+    <RichTreeView
+      items={FILE_SYSTEM}
+      multiSelect
+      defaultSelectedItems={['index', 'app']}
+    />
+    ```
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Overview" icon="house" href="/tree-view/overview">
+    Learn how SimpleTreeView, RichTreeView, and RichTreeViewPro compare.
+  </Card>
+  <Card title="Customization" icon="paintbrush" href="/tree-view/customization">
+    Custom item slots, selection modes, expansion control, and drag-and-drop.
+  </Card>
+</CardGroup>

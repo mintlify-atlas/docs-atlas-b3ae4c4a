@@ -1,0 +1,137 @@
+---
+title: "TimePicker component: time selection for React"
+description: "Use the MUI X TimePicker, DesktopTimePicker, MobileTimePicker, and DigitalClock components to let users select a time in React applications."
+---
+
+The `TimePicker` component lets users select a time. Like `DatePicker`, it automatically adapts between a popover (desktop) and a dialog (mobile) based on the device's pointer type. For fixed rendering modes or a fully digital interface, use the explicit variants.
+
+## Variants
+
+| Component | Description |
+|---|---|
+| `TimePicker` | Responsive — renders desktop or mobile variant automatically |
+| `DesktopTimePicker` | Always renders as a popover |
+| `MobileTimePicker` | Always renders as a dialog |
+| `StaticTimePicker` | Inline clock — always visible, no trigger input |
+| `DigitalClock` | Scrollable list of time slots instead of a clock face |
+| `MultiSectionDigitalClock` | Separate scrollable columns for hours, minutes, and seconds |
+
+All are exported from `@mui/x-date-pickers`.
+
+## Controlled usage
+
+```tsx
+import * as React from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+
+export default function ControlledTimePicker() {
+  const [value, setValue] = React.useState<Dayjs | null>(dayjs('2025-01-01T14:30'));
+
+  return (
+    <TimePicker
+      label="Meeting time"
+      value={value}
+      onChange={(newValue) => setValue(newValue)}
+    />
+  );
+}
+```
+
+## Desktop and mobile variants
+
+```tsx
+import { DesktopTimePicker } from '@mui/x-date-pickers/DesktopTimePicker';
+import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
+
+// Always renders as a popover
+<DesktopTimePicker label="Desktop" value={value} onChange={setValue} />
+
+// Always renders as a full-screen dialog on mobile
+<MobileTimePicker label="Mobile" value={value} onChange={setValue} />
+```
+
+## Digital clock
+
+`DigitalClock` renders as a scrollable list of available time slots. `MultiSectionDigitalClock` splits hours, minutes, and seconds into separate columns.
+
+```tsx
+import { DigitalClock } from '@mui/x-date-pickers/DigitalClock';
+import { MultiSectionDigitalClock } from '@mui/x-date-pickers/MultiSectionDigitalClock';
+
+// Single scrollable column
+<DigitalClock value={value} onChange={setValue} />
+
+// Separate columns per time section
+<MultiSectionDigitalClock value={value} onChange={setValue} />
+```
+
+## Key props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `Dayjs \| null` | — | The selected time (controlled). |
+| `defaultValue` | `Dayjs \| null` | — | Initial time (uncontrolled). |
+| `onChange` | `(value, context) => void` | — | Fires when the user selects a new time. |
+| `onAccept` | `(value, context) => void` | — | Fires when the user confirms the selection. |
+| `ampm` | `boolean` | Locale default | Use 12-hour (AM/PM) or 24-hour clock. |
+| `ampmInClock` | `boolean` | `true` (desktop) | Show AM/PM controls inside the clock face. |
+| `format` | `string` | Locale default | Display format for the text field. |
+| `minTime` | `Dayjs` | — | Earliest selectable time. |
+| `maxTime` | `Dayjs` | — | Latest selectable time. |
+| `minutesStep` | `number` | `1` | Interval (in minutes) between selectable minute values. |
+| `timeSteps` | `{ hours?: number; minutes?: number; seconds?: number }` | `{ hours: 1, minutes: 5, seconds: 5 }` | Step size for each time unit in the digital clock. |
+| `disablePast` | `boolean` | `false` | Disables times before the current time. |
+| `disableFuture` | `boolean` | `false` | Disables times after the current time. |
+| `disabled` | `boolean` | `false` | Disables the entire picker. |
+| `readOnly` | `boolean` | `false` | Allows interaction but prevents value changes. |
+| `views` | `Array<'hours' \| 'minutes' \| 'seconds'>` | `['hours','minutes']` | Which time units to display. |
+| `skipDisabled` | `boolean` | `false` | Hide disabled time slots in the digital clock. |
+
+## 12-hour vs 24-hour clock
+
+By default, `ampm` follows the active locale. You can override it explicitly.
+
+```tsx
+// Force 24-hour clock
+<TimePicker label="24h" ampm={false} value={value} onChange={setValue} />
+
+// Force 12-hour clock with AM/PM
+<TimePicker label="12h" ampm value={value} onChange={setValue} />
+```
+
+## Step interval and time range
+
+Use `minutesStep` for the analog clock, and `timeSteps` for the digital clock. Combine with `minTime` and `maxTime` to restrict selectable values.
+
+```tsx
+import dayjs from 'dayjs';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+
+<TimePicker
+  label="Office hours only"
+  minTime={dayjs('2025-01-01T09:00')}
+  maxTime={dayjs('2025-01-01T18:00')}
+  minutesStep={15}
+  value={value}
+  onChange={setValue}
+/>
+```
+
+## Validation
+
+Use `shouldDisableTime` to block specific times programmatically.
+
+```tsx
+<TimePicker
+  label="No lunch break"
+  shouldDisableTime={(time, view) => {
+    if (view === 'hours') {
+      return time.hour() === 12;
+    }
+    return false;
+  }}
+  value={value}
+  onChange={setValue}
+/>
+```

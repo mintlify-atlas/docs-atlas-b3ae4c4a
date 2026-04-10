@@ -1,0 +1,170 @@
+---
+title: "DateRangePicker: select date ranges in React"
+description: "Use the MUI X Pro DateRangePicker to let users select a start and end date, with support for multi-month views and custom day rendering."
+---
+
+`DateRangePicker` is a Pro component from `@mui/x-date-pickers-pro` that lets users select a contiguous range of dates by choosing a start date and an end date. It renders two calendars side-by-side on desktop by default and a dialog on mobile.
+
+<Warning>
+  `DateRangePicker` and other range pickers require a valid [MUI X Pro or Premium license](/licensing). Using the component without a license will display a watermark in development and throw an error in production.
+</Warning>
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install @mui/x-date-pickers-pro dayjs
+```
+
+```bash yarn
+yarn add @mui/x-date-pickers-pro dayjs
+```
+
+```bash pnpm
+pnpm add @mui/x-date-pickers-pro dayjs
+```
+
+</CodeGroup>
+
+## Controlled usage
+
+The `value` prop is a two-element tuple `[start, end]`. Either element can be `null` when not yet selected.
+
+```tsx
+import * as React from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import { DateRange } from '@mui/x-date-pickers-pro/models';
+
+export default function ControlledDateRangePicker() {
+  const [value, setValue] = React.useState<DateRange<Dayjs>>([null, null]);
+
+  return (
+    <DateRangePicker
+      value={value}
+      onChange={(newValue) => setValue(newValue)}
+      localeText={{ start: 'Check-in', end: 'Check-out' }}
+    />
+  );
+}
+```
+
+<Note>
+  Import `DateRange` from `@mui/x-date-pickers-pro/models` to type the value tuple.
+</Note>
+
+## Variants
+
+| Component | Description |
+|---|---|
+| `DateRangePicker` | Responsive — adapts to desktop popover or mobile dialog |
+| `DesktopDateRangePicker` | Always renders as a popover |
+| `MobileDateRangePicker` | Always renders as a dialog |
+| `StaticDateRangePicker` | Inline calendar — always visible |
+
+All are exported from `@mui/x-date-pickers-pro`.
+
+## Number of calendars
+
+On desktop, you can display one, two, or three months simultaneously using the `calendars` prop.
+
+```tsx
+import { DesktopDateRangePicker } from '@mui/x-date-pickers-pro/DesktopDateRangePicker';
+
+// Show a single calendar month
+<DesktopDateRangePicker
+  calendars={1}
+  value={value}
+  onChange={setValue}
+/>
+
+// Default: two side-by-side months
+<DesktopDateRangePicker
+  calendars={2}
+  value={value}
+  onChange={setValue}
+/>
+```
+
+<Note>
+  The `calendars` prop is only available on `DesktopDateRangePicker`. The responsive `DateRangePicker` inherits this value on desktop.
+</Note>
+
+## Key props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `[Dayjs \| null, Dayjs \| null]` | — | Selected range tuple (controlled). |
+| `defaultValue` | `[Dayjs \| null, Dayjs \| null]` | — | Initial range tuple (uncontrolled). |
+| `onChange` | `(value, context) => void` | — | Fires when either range endpoint changes. |
+| `onAccept` | `(value, context) => void` | — | Fires when the user confirms the range. |
+| `minDate` | `Dayjs` | `1900-01-01` | Earliest selectable date. |
+| `maxDate` | `Dayjs` | `2099-12-31` | Latest selectable date. |
+| `disablePast` | `boolean` | `false` | Disables dates before today. |
+| `disableFuture` | `boolean` | `false` | Disables dates after today. |
+| `calendars` | `1 \| 2 \| 3` | `2` | Number of calendar months shown (desktop only). |
+| `closeOnSelect` | `boolean` | `true` (desktop) | Close the popover after both dates are selected. |
+| `disabled` | `boolean` | `false` | Disables the entire picker. |
+| `readOnly` | `boolean` | `false` | Allows interaction but prevents value changes. |
+| `desktopModeMediaQuery` | `string` | `'@media (pointer: fine)'` | Media query that switches to desktop mode. |
+
+## Validation
+
+```tsx
+import dayjs from 'dayjs';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+
+<DateRangePicker
+  minDate={dayjs()}
+  maxDate={dayjs().add(1, 'year')}
+  value={value}
+  onChange={setValue}
+/>
+```
+
+## Custom day rendering with DateRangePickerDay
+
+Use `DateRangePickerDay` to customize how individual days are styled within the highlighted range.
+
+```tsx
+import * as React from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import {
+  DateRangePickerDay,
+  DateRangePickerDayProps,
+} from '@mui/x-date-pickers-pro/DateRangePickerDay';
+import { DateRange } from '@mui/x-date-pickers-pro/models';
+
+function CustomDay(props: DateRangePickerDayProps<Dayjs>) {
+  const { isHighlighting, isStartOfHighlighting, isEndOfHighlighting, ...other } = props;
+
+  return (
+    <DateRangePickerDay
+      {...props}
+      sx={
+        isHighlighting && !isStartOfHighlighting && !isEndOfHighlighting
+          ? { backgroundColor: 'primary.light', borderRadius: 0 }
+          : undefined
+      }
+    />
+  );
+}
+
+export default function CustomRangePicker() {
+  const [value, setValue] = React.useState<DateRange<Dayjs>>([null, null]);
+
+  return (
+    <DateRangePicker
+      value={value}
+      onChange={setValue}
+      slots={{ day: CustomDay }}
+    />
+  );
+}
+```
+
+<Tip>
+  Use the `slots` prop to replace the default day component. `DateRangePickerDay` exposes `isHighlighting`, `isStartOfHighlighting`, and `isEndOfHighlighting` booleans you can use for custom styling.
+</Tip>

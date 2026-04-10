@@ -1,0 +1,189 @@
+---
+title: "Install MUI X components in your React app"
+description: "Install MUI X Data Grid, Date Pickers, Charts, and Tree View packages for React, including peer dependencies setup and basic import paths for all tiers."
+---
+
+MUI X is distributed as a set of focused npm packages—one per component family. You only install what you need. All packages require React 17, 18, or 19 and Material UI as peer dependencies. This page covers installation for all four component families: Data Grid, Date & Time Pickers, Charts, and Tree View.
+
+## Peer dependencies
+
+Every MUI X package shares the same core peer dependencies. Install these once and all MUI X components will use them.
+
+<CodeGroup>
+
+```bash npm
+npm install react react-dom @mui/material @emotion/react @emotion/styled
+```
+
+```bash yarn
+yarn add react react-dom @mui/material @emotion/react @emotion/styled
+```
+
+```bash pnpm
+pnpm add react react-dom @mui/material @emotion/react @emotion/styled
+```
+
+</CodeGroup>
+
+<Info>
+  `@emotion/react` and `@emotion/styled` are technically optional peer dependencies when using a non-Emotion styling solution, but Material UI defaults to Emotion. Install them unless you have a specific reason not to.
+</Info>
+
+## Data Grid
+
+The Data Grid is available in three tiers. Start with the Community package; upgrade to Pro or Premium when you need advanced features.
+
+<CodeGroup>
+
+```bash Community (MIT)
+npm install @mui/x-data-grid
+```
+
+```bash Pro (commercial)
+npm install @mui/x-data-grid-pro
+```
+
+```bash Premium (commercial)
+npm install @mui/x-data-grid-premium
+```
+
+</CodeGroup>
+
+**Basic import:**
+
+```tsx
+// Community
+import { DataGrid } from '@mui/x-data-grid';
+
+// Pro
+import { DataGridPro } from '@mui/x-data-grid-pro';
+
+// Premium
+import { DataGridPremium } from '@mui/x-data-grid-premium';
+```
+
+Pro and Premium packages require a license key. See [licensing](/licensing) for setup instructions.
+
+## Date & Time Pickers
+
+The Date & Time Pickers package requires at least one date library. Choose the one you already use in your project; all are optional peer dependencies.
+
+<CodeGroup>
+
+```bash Community (MIT)
+npm install @mui/x-date-pickers
+```
+
+```bash Pro (commercial)
+npm install @mui/x-date-pickers-pro
+```
+
+</CodeGroup>
+
+**Install a date library** (choose one):
+
+<CodeGroup>
+
+```bash date-fns
+npm install date-fns
+```
+
+```bash dayjs
+npm install dayjs
+```
+
+```bash luxon
+npm install luxon
+```
+
+```bash moment
+npm install moment
+```
+
+</CodeGroup>
+
+**Basic import:**
+
+```tsx
+// Community — single date picker with date-fns adapter
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
+// Pro — date range picker
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+```
+
+<Note>
+  All Date & Time Picker components must be wrapped in a `LocalizationProvider` that specifies which date library adapter to use.
+</Note>
+
+## Charts
+
+The Charts package has no additional peer dependencies beyond the shared ones.
+
+<CodeGroup>
+
+```bash Community (MIT)
+npm install @mui/x-charts
+```
+
+```bash Pro (commercial)
+npm install @mui/x-charts-pro
+```
+
+```bash Premium (commercial)
+npm install @mui/x-charts-premium
+```
+
+</CodeGroup>
+
+**Basic import:**
+
+```tsx
+// Community
+import { BarChart } from '@mui/x-charts/BarChart';
+import { LineChart } from '@mui/x-charts/LineChart';
+import { PieChart } from '@mui/x-charts/PieChart';
+
+// Pro
+import { ScatterChartPro } from '@mui/x-charts-pro/ScatterChartPro';
+```
+
+## Tree View
+
+The Tree View package has no additional peer dependencies beyond the shared ones.
+
+<CodeGroup>
+
+```bash Community (MIT)
+npm install @mui/x-tree-view
+```
+
+```bash Pro (commercial)
+npm install @mui/x-tree-view-pro
+```
+
+</CodeGroup>
+
+**Basic import:**
+
+```tsx
+// Community
+import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
+
+// Pro — with drag-and-drop reordering
+import { RichTreeViewPro } from '@mui/x-tree-view-pro/RichTreeViewPro';
+```
+
+## Summary
+
+| Component family | Community package | Pro package | Premium package |
+|-----------------|-------------------|-------------|-----------------|
+| Data Grid | `@mui/x-data-grid` | `@mui/x-data-grid-pro` | `@mui/x-data-grid-premium` |
+| Date & Time Pickers | `@mui/x-date-pickers` | `@mui/x-date-pickers-pro` | — |
+| Charts | `@mui/x-charts` | `@mui/x-charts-pro` | `@mui/x-charts-premium` |
+| Tree View | `@mui/x-tree-view` | `@mui/x-tree-view-pro` | — |
+
+Community packages are MIT-licensed and require no license key. All Pro and Premium packages require a valid commercial license key. See [licensing](/licensing) for details.

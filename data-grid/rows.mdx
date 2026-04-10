@@ -1,0 +1,165 @@
+---
+title: "Working with rows in the MUI X Data Grid"
+description: "Configure row data, getRowId for custom IDs, controlled and uncontrolled row selection with checkboxSelection, row height, and row pinning in the Data Grid."
+---
+
+Rows are provided to the Data Grid via the `rows` prop as an array of plain objects. Each object represents a single row, and the Data Grid uses the `id` field by default to uniquely identify rows. You can customize this behavior and control how rows are selected, sized, and pinned.
+
+## Row data and the rows prop
+
+Pass an array of objects to the `rows` prop. Each object should contain at least one field that acts as a unique identifier:
+
+```tsx
+const rows = [
+  { id: 1, name: 'Alice Smith', department: 'Engineering', salary: 95000 },
+  { id: 2, name: 'Bob Jones', department: 'Design', salary: 82000 },
+  { id: 3, name: 'Carol White', department: 'Engineering', salary: 105000 },
+];
+
+<DataGrid rows={rows} columns={columns} />
+```
+
+## Custom row ID with getRowId
+
+If your data does not have an `id` field, use `getRowId` to specify which field to use. Keep the reference stable by defining the function outside the component or with `useCallback`.
+
+```tsx
+const getRowId = (row) => row.employeeCode;
+
+<DataGrid
+  rows={rows}
+  columns={columns}
+  getRowId={getRowId}
+/>
+```
+
+<Warning>
+Unstable references to `getRowId` (recreated on every render) can cause performance issues. Define the function outside the component or memoize it.
+</Warning>
+
+## Row selection
+
+### Uncontrolled selection
+
+By default, clicking a row selects it without any additional configuration. Use `checkboxSelection` to display a checkbox column:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  checkboxSelection
+/>
+```
+
+### Controlled row selection
+
+Use `rowSelectionModel` and `onRowSelectionModelChange` to control selection state from outside the grid. The selection model has the shape `{ type: 'include' | 'exclude', ids: Set<GridRowId> }`.
+
+```tsx
+import { useState } from 'react';
+import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+
+export default function ControlledSelection() {
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>({ type: 'include', ids: new Set() });
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      checkboxSelection
+      rowSelectionModel={rowSelectionModel}
+      onRowSelectionModelChange={(newModel) => {
+        setRowSelectionModel(newModel);
+        console.log('Selected IDs:', [...newModel.ids]);
+      }}
+    />
+  );
+}
+```
+
+### Disabling selection
+
+Set `rowSelection={false}` to disable row selection entirely, or use `isRowSelectable` for fine-grained control:
+
+```tsx
+// Disable selection for rows where the budget is locked
+<DataGrid
+  rows={rows}
+  columns={columns}
+  isRowSelectable={(params) => !params.row.budgetLocked}
+/>
+```
+
+### Disabling multi-selection
+
+The Community tier allows multi-selection only when `checkboxSelection` is enabled. Set `disableMultipleRowSelection` to restrict selection to a single row at a time:
+
+```tsx
+<DataGrid rows={rows} columns={columns} disableMultipleRowSelection />
+```
+
+## Row height
+
+The default row height is 52 pixels at standard density. Override it globally with the `rowHeight` prop:
+
+```tsx
+<DataGrid rows={rows} columns={columns} rowHeight={36} />
+```
+
+Use `getRowHeight` to set a different height per row:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  getRowHeight={(params) => (params.model.expanded ? 120 : 52)}
+/>
+```
+
+Pass `() => 'auto'` to let row height adapt to the cell content:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  getRowHeight={() => 'auto'}
+/>
+```
+
+## Row pinning (Pro and Premium)
+
+Pinned rows stay visible at the top or bottom of the grid as you scroll. They are provided via the `pinnedRows` prop on `DataGridPro` and `DataGridPremium`.
+
+```tsx
+import { DataGridPro } from '@mui/x-data-grid-pro';
+
+<DataGridPro
+  rows={rows}
+  columns={columns}
+  pinnedRows={{
+    top: [{ id: 'total', name: 'Total', salary: 282000 }],
+    bottom: [{ id: 'average', name: 'Average', salary: 94000 }],
+  }}
+/>
+```
+
+## Handling row clicks
+
+Use `onRowClick` to respond when a user clicks a row:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  onRowClick={(params) => {
+    console.log('Clicked row:', params.row);
+  }}
+/>
+```
+
+## Next steps
+
+- [Columns](/data-grid/columns) — define column types and custom renderers
+- [Editing](/data-grid/editing) — enable inline cell and row editing
+- [Pro features](/data-grid/pro-features) — column pinning, row reordering, and more

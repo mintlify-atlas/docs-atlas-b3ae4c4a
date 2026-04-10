@@ -1,0 +1,79 @@
+---
+title: "Migrate between MUI X major versions"
+description: "Understand MUI X's versioning policy, learn how to approach major version upgrades, and find links to migration guides and codemods."
+---
+
+MUI X follows [Semantic Versioning](https://semver.org). Major versions introduce breaking changes; minor and patch versions are backward compatible. This page explains how MUI X is versioned and how to approach a major version upgrade systematically.
+
+## Current version
+
+MUI X is currently at **v9**. The packages are published under the `@mui` scope:
+
+| Package | Latest |
+| :--- | :--- |
+| `@mui/x-data-grid` | v9 |
+| `@mui/x-date-pickers` | v9 |
+| `@mui/x-charts` | v9 |
+| `@mui/x-tree-view` | v9 |
+
+Pro and Premium tiers follow the same version cadence under `@mui/x-data-grid-pro`, `@mui/x-data-grid-premium`, `@mui/x-charts-pro`, and `@mui/x-date-pickers-pro`.
+
+## Versioning policy
+
+MUI X releases a new major version roughly once a year. Each major version:
+
+- May rename or remove props and API surface
+- May change import paths
+- Drops support for older versions of React and Material UI
+- Ships codemods to automate the most common migration steps
+
+Minor and patch releases within a major version are safe to upgrade to without manual changes.
+
+<Note>
+  MUI X major versions track Material UI major versions. MUI X v9 requires `@mui/material` v6 or later.
+</Note>
+
+## How to approach an upgrade
+
+<Steps>
+  <Step title="Read the migration guide">
+    Each major version ships a dedicated migration guide that lists every breaking change, with before/after code examples. Find the guide for your target version in the MUI X documentation.
+  </Step>
+  <Step title="Run the preset-safe codemod">
+    The `preset-safe` codemod automates the mechanical parts of the migration: renamed props, moved imports, and removed APIs. Run it against your `src` directory before making manual changes.
+
+    ```bash
+    npx @mui/x-codemod@latest v9.0.0/preset-safe src
+    ```
+
+    See [Automate MUI X upgrades with codemods](/migration/codemods) for the full reference.
+  </Step>
+  <Step title="Review remaining breaking changes">
+    After running the codemod, review the migration guide for changes that cannot be automated — behavior changes, removed features, and updated TypeScript types.
+  </Step>
+  <Step title="Update your license key">
+    If you use Pro or Premium components, verify your license key is valid for the new major version. See [Licensing](/licensing) for details.
+  </Step>
+  <Step title="Test thoroughly">
+    Run your test suite and manually verify key workflows. Pay close attention to DataGrid column definitions, date parsing behavior, and any customized slot components.
+  </Step>
+</Steps>
+
+## Support lifecycle
+
+MUI X provides bug fixes and security patches for the current major version and the previous major version. Older versions are not actively maintained.
+
+<Warning>
+  If you are more than one major version behind, upgrade incrementally — one major version at a time — rather than skipping directly to the latest. This makes it easier to identify and resolve breaking changes.
+</Warning>
+
+## Related
+
+<CardGroup>
+  <Card title="Automate upgrades with codemods" icon="terminal" href="/migration/codemods">
+    Run preset-safe and individual codemods to automate migration steps.
+  </Card>
+  <Card title="Licensing" icon="key" href="/licensing">
+    Pro and Premium licenses across MUI X major versions.
+  </Card>
+</CardGroup>

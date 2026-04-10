@@ -1,0 +1,233 @@
+---
+title: "Define and customize Data Grid columns"
+description: "Configure GridColDef properties to control column width, type, sortable, filterable, valueGetter, valueFormatter, and custom cell rendering in the Data Grid."
+---
+
+Columns are defined through an array of `GridColDef` objects passed to the `columns` prop. Each definition maps a data field to a column and controls how that column is displayed, sorted, filtered, and edited.
+
+## Column definition properties
+
+The core properties available on every column definition:
+
+<AccordionGroup>
+  <Accordion title="field (required)">
+    The unique key that maps this column to a property on each row object. This is the only required property.
+
+    ```tsx
+    { field: 'firstName' }
+    ```
+  </Accordion>
+
+  <Accordion title="headerName">
+    The text shown in the column header. Defaults to the value of `field`.
+
+    ```tsx
+    { field: 'firstName', headerName: 'First name' }
+    ```
+  </Accordion>
+
+  <Accordion title="width and flex">
+    Use `width` for a fixed pixel width (default `100`). Use `flex` for proportional sizing — the column will grow to fill available space relative to other flex columns.
+
+    ```tsx
+    // Fixed width
+    { field: 'id', width: 70 }
+
+    // Flex: takes up 2x the space of flex: 1 columns
+    { field: 'description', flex: 2 }
+    ```
+
+    You can also set `minWidth` and `maxWidth` to constrain flex columns:
+
+    ```tsx
+    { field: 'name', flex: 1, minWidth: 120, maxWidth: 400 }
+    ```
+  </Accordion>
+
+  <Accordion title="type">
+    Column type enables type-aware filtering operators and formatting. The available types are:
+
+    - `'string'` (default)
+    - `'number'`
+    - `'date'`
+    - `'dateTime'`
+    - `'boolean'`
+    - `'singleSelect'`
+    - `'actions'`
+    - `'custom'`
+    - `'longText'`
+
+    ```tsx
+    { field: 'age', type: 'number', headerName: 'Age' }
+    { field: 'joinedAt', type: 'date', headerName: 'Joined' }
+    { field: 'active', type: 'boolean', headerName: 'Active' }
+    ```
+  </Accordion>
+
+  <Accordion title="sortable, filterable, editable">
+    Control interactivity per column. All default to `true` except `editable` which defaults to `false`.
+
+    ```tsx
+    {
+      field: 'id',
+      sortable: false,
+      filterable: false,
+      editable: false,
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="valueGetter">
+    A function that derives the cell value from the row model. Useful when the display value requires computation or comes from nested fields.
+
+    ```tsx
+    {
+      field: 'fullName',
+      headerName: 'Full name',
+      valueGetter: (value, row) => `${row.firstName} ${row.lastName}`,
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="valueFormatter">
+    Formats a value for display without changing the underlying value used for sorting and filtering.
+
+    ```tsx
+    {
+      field: 'salary',
+      type: 'number',
+      valueFormatter: (value) =>
+        value != null ? `$${Number(value).toLocaleString()}` : '',
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="renderCell">
+    Replaces the default cell renderer with a custom React element. The `params` object exposes the cell value, row data, and other contextual information.
+
+    ```tsx
+    {
+      field: 'status',
+      renderCell: (params) => (
+        <span style={{ color: params.value === 'active' ? 'green' : 'red' }}>
+          {params.value}
+        </span>
+      ),
+    }
+    ```
+
+    Set `display: 'flex'` on the column when rendering elements that need full height:
+
+    ```tsx
+    { field: 'avatar', display: 'flex', renderCell: (params) => <Avatar src={params.value} /> }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Column types in practice
+
+### String column (default)
+
+```tsx
+const columns: GridColDef[] = [
+  { field: 'name', headerName: 'Name', width: 160 },
+];
+```
+
+### Number column
+
+Number columns right-align cells and use numeric filter operators (=, !=, >, >=, &lt;, &lt;=).
+
+```tsx
+{ field: 'quantity', headerName: 'Qty', type: 'number', width: 100 }
+```
+
+### Date and dateTime columns
+
+Pass `Date` objects (or ISO strings that the grid parses) in your row data.
+
+```tsx
+{ field: 'createdAt', headerName: 'Created', type: 'date', width: 140 }
+```
+
+### Boolean column
+
+Renders a checkbox icon and provides `is`, `is not` filter operators.
+
+```tsx
+{ field: 'verified', headerName: 'Verified', type: 'boolean', width: 100 }
+```
+
+### singleSelect column
+
+Renders a dropdown in the filter panel and in edit mode. Provide `valueOptions` as an array of strings, numbers, or `{ value, label }` objects.
+
+```tsx
+{
+  field: 'role',
+  headerName: 'Role',
+  type: 'singleSelect',
+  valueOptions: ['admin', 'editor', 'viewer'],
+  width: 130,
+}
+```
+
+## Custom renderCell example
+
+Use `renderCell` to display rich content such as progress bars, chips, or action buttons:
+
+```tsx
+import Chip from '@mui/material/Chip';
+import { GridColDef } from '@mui/x-data-grid';
+
+const columns: GridColDef[] = [
+  {
+    field: 'status',
+    headerName: 'Status',
+    width: 130,
+    renderCell: (params) => {
+      const colorMap: Record<string, 'success' | 'warning' | 'error'> = {
+        active: 'success',
+        pending: 'warning',
+        inactive: 'error',
+      };
+      return (
+        <Chip
+          label={params.value}
+          color={colorMap[params.value] ?? 'default'}
+          size="small"
+        />
+      );
+    },
+  },
+];
+```
+
+## Column header customization
+
+Use `renderHeader` to replace the default header cell content:
+
+```tsx
+{
+  field: 'score',
+  renderHeader: () => (
+    <strong>Score ★</strong>
+  ),
+}
+```
+
+Use `headerAlign` to control the alignment of the header text (`'left'`, `'center'`, or `'right'`).
+
+## Disabling export for a column
+
+Set `disableExport: true` on any column to exclude it from CSV and Excel exports:
+
+```tsx
+{ field: 'internalCode', headerName: 'Internal code', disableExport: true }
+```
+
+## Next steps
+
+- [Working with rows](/data-grid/rows) — configure row data and selection
+- [Filtering](/data-grid/filtering) — apply filters to your column data
+- [Editing](/data-grid/editing) — enable inline cell and row editing

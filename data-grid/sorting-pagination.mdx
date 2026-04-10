@@ -1,0 +1,195 @@
+---
+title: "Sorting and pagination in the MUI X Data Grid"
+description: "Control sort order with sortModel, enable multi-column sorting on Pro, and paginate data with paginationModel and pageSizeOptions."
+---
+
+The Data Grid supports client-side and server-side sorting and pagination. Sorting state is managed through the `sortModel` prop and pagination through `paginationModel`. Both can be controlled or uncontrolled.
+
+## Sorting
+
+### Default sort behavior
+
+Clicking a column header cycles through ascending → descending → unsorted. The default order can be changed via `sortingOrder` on the grid or per column with `sortingOrder` on `GridColDef`.
+
+```tsx
+// Change the global cycle to: ascending → descending (no unsorted state)
+<DataGrid
+  rows={rows}
+  columns={columns}
+  sortingOrder={['asc', 'desc']}
+/>
+```
+
+### Controlled sort model
+
+Use `sortModel` and `onSortModelChange` to track and control sort state:
+
+```tsx
+import { useState } from 'react';
+import { DataGrid, GridSortModel } from '@mui/x-data-grid';
+
+export default function SortedGrid() {
+  const [sortModel, setSortModel] = useState<GridSortModel>([
+    { field: 'lastName', sort: 'asc' },
+  ]);
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      sortModel={sortModel}
+      onSortModelChange={(model) => setSortModel(model)}
+    />
+  );
+}
+```
+
+The `GridSortModel` is an array of `{ field: string; sort: 'asc' | 'desc' | null }` items. The Community tier only supports one item at a time (single-column sort). Pro and Premium support [multi-column sorting](/data-grid/pro-features#multi-column-sorting).
+
+### Disabling sort for a column
+
+```tsx
+{ field: 'actions', headerName: 'Actions', sortable: false }
+```
+
+### Server-side sorting
+
+Set `sortingMode="server"` to skip client-side sorting. Handle `onSortModelChange` to refetch sorted data:
+
+```tsx
+export default function ServerSortGrid() {
+  const [rows, setRows] = useState([]);
+  const [sortModel, setSortModel] = useState<GridSortModel>([]);
+
+  const handleSortModelChange = async (model: GridSortModel) => {
+    setSortModel(model);
+    const data = await fetchRows({ sortModel: model });
+    setRows(data);
+  };
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      sortingMode="server"
+      sortModel={sortModel}
+      onSortModelChange={handleSortModelChange}
+    />
+  );
+}
+```
+
+## Pagination
+
+### Enabling pagination
+
+Add the `pagination` prop to enable the paginator. By default the page size is 100. Provide `pageSizeOptions` to let users switch between page sizes:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  pageSizeOptions={[10, 25, 50, 100]}
+  initialState={{
+    pagination: { paginationModel: { pageSize: 25, page: 0 } },
+  }}
+/>
+```
+
+<Note>
+`pageSizeOptions` items must be in ascending order. You can also pass an object to display a custom label: `{ value: 100, label: '100 rows' }`.
+</Note>
+
+### Controlled pagination
+
+Use `paginationModel` and `onPaginationModelChange` to manage pagination state:
+
+```tsx
+import { useState } from 'react';
+import { DataGrid, GridPaginationModel } from '@mui/x-data-grid';
+
+export default function ControlledPaginationGrid() {
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      paginationModel={paginationModel}
+      onPaginationModelChange={(model) => setPaginationModel(model)}
+      pageSizeOptions={[10, 25, 50]}
+    />
+  );
+}
+```
+
+### Server-side pagination
+
+Set `paginationMode="server"` and provide `rowCount` so the grid knows the total number of rows. Handle `onPaginationModelChange` to fetch the correct page from the server.
+
+```tsx
+export default function ServerPaginationGrid() {
+  const [rows, setRows] = useState([]);
+  const [rowCount, setRowCount] = useState(0);
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+
+  useEffect(() => {
+    let active = true;
+    fetchRows(paginationModel).then(({ rows: newRows, total }) => {
+      if (active) {
+        setRows(newRows);
+        setRowCount(total);
+      }
+    });
+    return () => { active = false; };
+  }, [paginationModel]);
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      paginationMode="server"
+      rowCount={rowCount}
+      paginationModel={paginationModel}
+      onPaginationModelChange={(model) => setPaginationModel(model)}
+      pageSizeOptions={[25, 50, 100]}
+    />
+  );
+}
+```
+
+### Combining server-side sorting and pagination
+
+Handle both `onSortModelChange` and `onPaginationModelChange`. Reset to page 0 when the sort changes to avoid showing an empty page:
+
+```tsx
+const handleSortModelChange = (model: GridSortModel) => {
+  setSortModel(model);
+  // Reset to first page when sort changes
+  setPaginationModel((prev) => ({ ...prev, page: 0 }));
+};
+```
+
+<Tip>
+For a more complete server-side integration that also handles filtering, use the `dataSource` prop available in Pro and Premium. See [server-side data](/data-grid/server-side-data) for details.
+</Tip>
+
+### Auto page size
+
+Set `autoPageSize` to automatically calculate the page size based on the available grid height:
+
+```tsx
+<DataGrid rows={rows} columns={columns} autoPageSize />
+```
+
+## Next steps
+
+- [Filtering](/data-grid/filtering) — add column filters and quick filter
+- [Server-side data](/data-grid/server-side-data) — unified API for server-driven sorting, filtering, and pagination
+- [Pro features](/data-grid/pro-features) — multi-column sorting and more

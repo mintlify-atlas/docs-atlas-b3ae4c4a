@@ -1,0 +1,185 @@
+---
+title: "Replace MUI X component internals with slots"
+description: "Build and inject custom React components into MUI X slots to replace the toolbar, footer, overlays, and other sub-components with your own implementations."
+---
+
+MUI X components are composed of named sub-components called slots. Every slot can be replaced with your own React component via the `slots` prop. This lets you swap out any internal piece — toolbar, footer, pagination, overlays, action bars — without forking the library.
+
+## Define a custom slot component
+
+A slot component is a regular React component. Define it outside the render tree so its reference stays stable between renders and React does not remount it on every update.
+
+```tsx
+import { DataGrid } from '@mui/x-data-grid';
+
+// ✅ Defined outside the component tree — reference is stable
+function CustomToolbar() {
+  return (
+    <div style={{ padding: '8px 16px', borderBottom: '1px solid #e0e0e0' }}>
+      <strong>My custom toolbar</strong>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      slots={{ toolbar: CustomToolbar }}
+    />
+  );
+}
+```
+
+<Warning>
+  Never define slot components inline or inside `React.useCallback` with changing dependencies. Doing so creates a new reference each render, causing the slot to remount and lose internal state and focus.
+
+  ```tsx
+  // ❌ Inline — remounts on every render
+  <DataGrid slots={{ toolbar: () => <div>Toolbar</div> }} />
+
+  // ❌ useCallback with deps — remounts when deps change
+  const MyToolbar = React.useCallback(() => <div>{title}</div>, [title]);
+  ```
+</Warning>
+
+## Pass props to a slot with slotProps
+
+Use `slotProps` to forward props to a slot without replacing it. This works with built-in slots and custom ones alike.
+
+```tsx
+import { DataGrid } from '@mui/x-data-grid';
+
+function CustomToolbar({ title }: { title: string }) {
+  return (
+    <div style={{ padding: '8px 16px' }}>
+      <h2>{title}</h2>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      slots={{ toolbar: CustomToolbar }}
+      slotProps={{ toolbar: { title: 'Sales report' } }}
+    />
+  );
+}
+```
+
+## Use a callback in slotProps
+
+Many slots support a callback form of `slotProps` that receives the current component state, letting you derive props dynamically:
+
+```tsx
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+<DatePicker
+  slotProps={{
+    actionBar: ({ pickerVariant }) => ({
+      actions: pickerVariant === 'desktop' ? [] : ['clear', 'today'],
+    }),
+  }}
+/>
+```
+
+## Replace the DataGrid toolbar
+
+The `toolbar` slot replaces the entire toolbar area above the grid. Use `GridToolbarContainer` as your wrapper — it applies the correct padding and flex layout.
+
+```tsx
+import {
+  DataGrid,
+  GridToolbarContainer,
+  GridToolbarExport,
+  GridToolbarFilterButton,
+} from '@mui/x-data-grid';
+
+function CustomToolbar() {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarFilterButton />
+      <GridToolbarExport />
+      <span style={{ flex: 1 }} />
+      <strong>My Data Grid</strong>
+    </GridToolbarContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      slots={{ toolbar: CustomToolbar }}
+    />
+  );
+}
+```
+
+<Tip>
+  Use `GridToolbarContainer` as the wrapper for your toolbar. It applies the correct padding and `display: flex` layout that aligns with the grid's visual design.
+</Tip>
+
+## Replace the no-rows overlay
+
+The `noRowsOverlay` slot renders when the grid has zero rows. Use it to display an empty state illustration or a call-to-action.
+
+```tsx
+import { DataGrid } from '@mui/x-data-grid';
+
+function CustomNoRowsOverlay() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 40 }}>
+      <p>No data available</p>
+    </div>
+  );
+}
+
+<DataGrid
+  rows={[]}
+  columns={columns}
+  slots={{ noRowsOverlay: CustomNoRowsOverlay }}
+/>
+```
+
+## Type slot props with TypeScript
+
+Import `PropsFromSlot` from the package's `models` entry point to infer the exact props your slot receives:
+
+```tsx
+import { PropsFromSlot, DateCalendarSlots } from '@mui/x-date-pickers/models';
+
+function CustomCalendarHeader({
+  currentMonth,
+}: PropsFromSlot<DateCalendarSlots['calendarHeader']>) {
+  return <div>{currentMonth?.format('MMMM YYYY')}</div>;
+}
+```
+
+`PropsFromSlot` is available from every MUI X package that supports the slots API:
+
+```tsx
+import { PropsFromSlot } from '@mui/x-data-grid/models';
+import { PropsFromSlot } from '@mui/x-date-pickers/models';
+import { PropsFromSlot } from '@mui/x-charts/models';
+import { PropsFromSlot } from '@mui/x-tree-view/models';
+```
+
+## Related
+
+<CardGroup>
+  <Card title="Slots API reference" icon="list" href="/customization/slots">
+    Full reference of available slots for DataGrid and DatePicker.
+  </Card>
+  <Card title="Theming MUI X" icon="palette" href="/customization/theming">
+    Apply global style overrides via createTheme.
+  </Card>
+  <Card title="Licensing" icon="key" href="/licensing">
+    Some MUI X components require a commercial license.
+  </Card>
+</CardGroup>

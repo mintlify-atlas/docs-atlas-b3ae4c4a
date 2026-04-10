@@ -1,0 +1,232 @@
+---
+title: "Style and theme MUI X Charts"
+description: "Apply colors, color palettes, sx prop, per-series color overrides, ChartsText styling, and slot-based customization to MUI X charts."
+---
+
+MUI X Charts integrate with the MUI Material UI theming system. You can customize appearance through color palettes, the `sx` prop, per-series color overrides, and the `slots` / `slotProps` API for deeper structural changes.
+
+## Color palettes
+
+By default, charts use the `rainbowSurgePalette` for series colors. Pass a different palette via the `colors` prop.
+
+### Using a built-in palette
+
+MUI X ships several categorical palettes. Import any of them from `@mui/x-charts/colorPalettes`:
+
+```tsx
+import { BarChart } from '@mui/x-charts/BarChart';
+import { blueberryTwilightPalette } from '@mui/x-charts/colorPalettes';
+
+<BarChart
+  series={[
+    { data: [4, 7, 2], label: 'A' },
+    { data: [3, 5, 8], label: 'B' },
+  ]}
+  xAxis={[{ data: ['Jan', 'Feb', 'Mar'], scaleType: 'band' }]}
+  colors={blueberryTwilightPalette}
+  width={400}
+  height={300}
+/>
+```
+
+Available categorical palettes:
+
+| Export | Description |
+|---|---|
+| `rainbowSurgePalette` | Default — broad rainbow spectrum |
+| `blueberryTwilightPalette` | Cool blue-purple tones |
+| `mangoFusionPalette` | Warm orange-yellow-red tones |
+| `cheerfulFiestaPalette` | Vibrant, high-contrast colors |
+
+### Passing a custom array
+
+`colors` also accepts a plain array of CSS color strings:
+
+```tsx
+<LineChart
+  series={[{ data: [1, 4, 2, 7] }]}
+  xAxis={[{ data: [1, 2, 3, 4] }]}
+  colors={['#e91e63', '#2196f3', '#4caf50']}
+  width={400}
+  height={300}
+/>
+```
+
+### Dynamic palette based on theme mode
+
+`colors` accepts a function `(mode: 'light' | 'dark') => string[]` so you can return different colors per theme mode:
+
+```tsx
+<BarChart
+  colors={(mode) => mode === 'dark'
+    ? ['#90caf9', '#f48fb1']
+    : ['#1565c0', '#c62828']
+  }
+  series={[ ... ]}
+  xAxis={[ ... ]}
+  width={400}
+  height={300}
+/>
+```
+
+---
+
+## Per-series color
+
+Override the color for an individual series using the `color` property on the series object. This takes precedence over the palette.
+
+```tsx
+<LineChart
+  series={[
+    { data: [2, 5, 3], label: 'Sales', color: '#4caf50' },
+    { data: [4, 2, 7], label: 'Returns', color: '#f44336' },
+  ]}
+  xAxis={[{ data: ['Jan', 'Feb', 'Mar'] }]}
+  width={400}
+  height={300}
+/>
+```
+
+### Per-point color with colorGetter
+
+For point-level color control, use `colorGetter` on a series:
+
+```tsx
+<ScatterChart
+  series={[
+    {
+      data: [
+        { x: 10, y: 20, id: 'a' },
+        { x: 40, y: 15, id: 'b' },
+        { x: 25, y: 60, id: 'c' },
+      ],
+      colorGetter: ({ dataIndex }) =>
+        dataIndex === 1 ? '#f44336' : '#2196f3',
+    },
+  ]}
+  width={400}
+  height={300}
+/>
+```
+
+---
+
+## sx prop
+
+Every chart component accepts MUI's `sx` prop for style overrides on the root element.
+
+```tsx
+<BarChart
+  series={[{ data: [3, 7, 4] }]}
+  xAxis={[{ data: ['A', 'B', 'C'], scaleType: 'band' }]}
+  width={400}
+  height={300}
+  sx={{
+    border: '1px solid',
+    borderColor: 'divider',
+    borderRadius: 2,
+    bgcolor: 'background.paper',
+  }}
+/>
+```
+
+---
+
+## ChartsText styling
+
+`ChartsText` is the base SVG text component used for axis labels and tick labels. Style it via the `labelStyle` or `tickLabelStyle` properties on axis configs.
+
+```tsx
+<LineChart
+  series={[{ data: [1, 4, 2] }]}
+  xAxis={[{
+    data: ['A', 'B', 'C'],
+    tickLabelStyle: {
+      fontSize: 14,
+      fontWeight: 600,
+      fill: '#1976d2',
+    },
+    labelStyle: {
+      fontSize: 16,
+      fontStyle: 'italic',
+    },
+    label: 'Category',
+  }]}
+  width={400}
+  height={300}
+/>
+```
+
+---
+
+## Slot-based customization
+
+Every chart component uses the MUI `slots` / `slotProps` pattern. Replace any internal sub-component by providing a custom implementation to `slots`.
+
+### Replace the legend
+
+```tsx
+import { BarChart } from '@mui/x-charts/BarChart';
+
+function MyCustomLegend(props) {
+  return <div style={{ color: 'red' }}>Custom Legend</div>;
+}
+
+<BarChart
+  series={[{ data: [1, 2, 3], label: 'Data' }]}
+  xAxis={[{ data: ['A', 'B', 'C'], scaleType: 'band' }]}
+  slots={{ legend: MyCustomLegend }}
+  width={400}
+  height={300}
+/>
+```
+
+### Available slots
+
+The slots available vary by chart type. Common slots across Cartesian charts include:
+
+| Slot key | Default component | Purpose |
+|---|---|---|
+| `legend` | `ChartsLegend` | Legend renderer |
+| `tooltip` | `ChartsTooltip` | Tooltip overlay |
+| `axisContent` | built-in | Tooltip content for axis trigger |
+| `itemContent` | built-in | Tooltip content for item trigger |
+| `bar` | `BarElement` | Individual bar element (BarChart) |
+| `line` | `LineElement` | Individual line element (LineChart) |
+| `mark` | `MarkElement` | Individual mark element (LineChart) |
+
+<Tip>
+Use `slotProps` to pass additional props to a built-in slot component without replacing it entirely. For example, `slotProps={{ legend: { direction: 'column' } }}` changes the legend layout direction.
+</Tip>
+
+---
+
+## MUI theme integration
+
+Charts inherit the active MUI theme. You can customize chart component defaults globally through `theme.components`:
+
+```tsx
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  components: {
+    MuiBarChart: {
+      defaultProps: {
+        colors: ['#1565c0', '#c62828', '#2e7d32'],
+      },
+    },
+  },
+});
+
+export default function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      {/* All BarChart instances use the custom colors by default */}
+    </ThemeProvider>
+  );
+}
+```
+
+<Warning>
+Theme-level `defaultProps` for charts require MUI Material v5.13+ and `@mui/x-charts` v7+. Check your package versions if overrides are not applying.
+</Warning>

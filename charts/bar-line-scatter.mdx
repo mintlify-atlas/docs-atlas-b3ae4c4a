@@ -1,0 +1,209 @@
+---
+title: "Bar, line, and scatter charts in MUI X"
+description: "Reference and examples for BarChart, LineChart, ScatterChart, and SparkLineChart — including stacking, area variant, and sparklines."
+---
+
+MUI X provides four Cartesian chart components that share a common set of props for axes, series, grid, legend, and tooltip. All four are available in `@mui/x-charts` under the MIT Community license.
+
+## BarChart
+
+`BarChart` renders vertical or horizontal rectangular bars. The required prop is `series`, an array of `BarSeries` objects.
+
+### Series structure
+
+```tsx
+import { BarChart } from '@mui/x-charts/BarChart';
+
+<BarChart
+  series={[
+    { data: [3, 7, 4, 8], label: 'Revenue' },
+    { data: [1, 3, 5, 2], label: 'Expenses' },
+  ]}
+  xAxis={[{ data: ['Q1', 'Q2', 'Q3', 'Q4'], scaleType: 'band' }]}
+  width={500}
+  height={300}
+/>
+```
+
+Each `BarSeries` object can contain:
+
+| Property | Type | Description |
+|---|---|---|
+| `data` | `(number \| null)[]` | Values for each bar |
+| `label` | `string` | Legend and tooltip label |
+| `id` | `string` | Unique series identifier |
+| `color` | `string` | Override the auto-assigned color |
+| `stack` | `string` | Stack key — bars with the same key stack |
+| `layout` | `'vertical' \| 'horizontal'` | Bar orientation (default `'vertical'`) |
+| `barLabel` | `'value' \| function` | Label rendered on each bar |
+
+### Stacking
+
+Set the same `stack` value on multiple series to stack them.
+
+```tsx
+<BarChart
+  series={[
+    { data: [4, 6, 3], label: 'Category A', stack: 'total' },
+    { data: [2, 5, 7], label: 'Category B', stack: 'total' },
+  ]}
+  xAxis={[{ data: ['Jan', 'Feb', 'Mar'], scaleType: 'band' }]}
+  width={400}
+  height={300}
+/>
+```
+
+### Horizontal bars
+
+Set `layout="horizontal"` on the series and swap `xAxis` / `yAxis` accordingly.
+
+```tsx
+<BarChart
+  series={[{ data: [4, 7, 2], label: 'Score', layout: 'horizontal' }]}
+  yAxis={[{ data: ['Alice', 'Bob', 'Carol'], scaleType: 'band' }]}
+  width={400}
+  height={200}
+/>
+```
+
+<Tip>
+The `borderRadius` prop on `BarChart` rounds the corners of every bar. Use `grid={{ horizontal: true }}` to add horizontal grid lines.
+</Tip>
+
+---
+
+## LineChart
+
+`LineChart` renders connected lines with optional marks at data points. Set `area: true` on a series to fill the area beneath the line.
+
+### Series structure
+
+```tsx
+import { LineChart } from '@mui/x-charts/LineChart';
+
+<LineChart
+  series={[
+    { data: [2, 5, 3, 8, 6], label: 'Series A' },
+    { data: [4, 3, 7, 2, 9], label: 'Series B', area: true },
+  ]}
+  xAxis={[{ data: [1, 2, 3, 4, 5] }]}
+  width={500}
+  height={300}
+/>
+```
+
+Each `LineSeries` object can contain:
+
+| Property | Type | Description |
+|---|---|---|
+| `data` | `(number \| null)[]` | Values for each point |
+| `label` | `string` | Legend and tooltip label |
+| `id` | `string` | Unique series identifier |
+| `color` | `string` | Override the auto-assigned color |
+| `area` | `boolean` | Fill the area below the line |
+| `stack` | `string` | Stack key for stacked lines/areas |
+| `curve` | `CurveType` | Interpolation (default `'monotoneX'`) |
+| `showMark` | `boolean \| function` | Control mark rendering per point |
+| `connectNulls` | `boolean` | Bridge over `null` values |
+
+### Area chart
+
+```tsx
+<LineChart
+  series={[
+    { data: [3, 6, 4, 9, 7], label: 'Visitors', area: true, color: '#4caf50' },
+  ]}
+  xAxis={[{ data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], scaleType: 'band' }]}
+  width={500}
+  height={300}
+/>
+```
+
+### Stacked lines and areas
+
+```tsx
+<LineChart
+  series={[
+    { data: [2, 4, 3], label: 'Mobile', area: true, stack: 'total' },
+    { data: [5, 3, 6], label: 'Desktop', area: true, stack: 'total' },
+  ]}
+  xAxis={[{ data: ['Jan', 'Feb', 'Mar'] }]}
+  width={500}
+  height={300}
+/>
+```
+
+<Note>
+Line stacking is additive. Set `stackOffset` on a series to control how negative values are handled (`'diverging'`, `'none'`, etc.).
+</Note>
+
+---
+
+## ScatterChart
+
+`ScatterChart` renders points at `{ x, y }` coordinates. Each series provides its own set of points.
+
+### Series structure
+
+```tsx
+import { ScatterChart } from '@mui/x-charts/ScatterChart';
+
+<ScatterChart
+  series={[
+    {
+      data: [
+        { x: 10, y: 20, id: 'a' },
+        { x: 40, y: 35, id: 'b' },
+        { x: 25, y: 60, id: 'c' },
+      ],
+      label: 'Group A',
+    },
+  ]}
+  width={400}
+  height={300}
+/>
+```
+
+Each `ScatterSeries` object can contain:
+
+| Property | Type | Description |
+|---|---|---|
+| `data` | `ScatterValueType[]` | Array of `{ x, y, id?, z? }` points |
+| `label` | `string` | Legend and tooltip label |
+| `markerSize` | `number` | Marker radius in pixels |
+| `color` | `string` | Override the auto-assigned color |
+
+<Tip>
+Provide a `z` value on each data point and configure a `zAxis` on the chart to scale marker sizes proportionally.
+</Tip>
+
+---
+
+## SparkLineChart
+
+`SparkLineChart` is a compact chart with no visible axes or legend, intended for embedding inside tables or cards.
+
+```tsx
+import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
+
+<SparkLineChart
+  data={[3, 7, 4, 9, 5, 8]}
+  width={120}
+  height={40}
+/>
+```
+
+Use `plotType="bar"` to render bars instead of a line:
+
+```tsx
+<SparkLineChart
+  plotType="bar"
+  data={[3, 7, 4, 9, 5, 8]}
+  width={120}
+  height={40}
+/>
+```
+
+<Warning>
+`SparkLineChart` accepts a flat `data` array (not a `series` array) and a single optional `xAxis` config object (not an array).
+</Warning>

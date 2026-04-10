@@ -1,0 +1,218 @@
+---
+title: "Pie and radar charts in MUI X Charts"
+description: "Reference and examples for PieChart, RadarChart, and Gauge — including donut, arc labels, metric config, and fill-area variants."
+---
+
+MUI X provides three polar-coordinate chart components for proportional and multivariate data visualization. All are available in `@mui/x-charts` under the MIT Community license.
+
+## PieChart
+
+`PieChart` renders arcs proportional to their `value`. Each series is an object with a `data` array of `PieValueType` items.
+
+### Series structure
+
+```tsx
+import { PieChart } from '@mui/x-charts/PieChart';
+
+<PieChart
+  series={[
+    {
+      data: [
+        { id: 0, value: 40, label: 'Apples' },
+        { id: 1, value: 30, label: 'Bananas' },
+        { id: 2, value: 30, label: 'Cherries' },
+      ],
+    },
+  ]}
+  width={400}
+  height={300}
+/>
+```
+
+Each item in the `data` array can contain:
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | `string \| number` | Unique item identifier |
+| `value` | `number` | Proportional value (required) |
+| `label` | `string` | Tooltip, arc, and legend label |
+| `color` | `string` | Override the auto-assigned color |
+
+### Donut variant
+
+Set `innerRadius` on the series to create a donut chart. Accepts a pixel number or a percentage string relative to the available radius.
+
+```tsx
+<PieChart
+  series={[
+    {
+      data: [
+        { id: 0, value: 60, label: 'Used' },
+        { id: 1, value: 40, label: 'Free' },
+      ],
+      innerRadius: '60%',
+      outerRadius: '90%',
+    },
+  ]}
+  width={300}
+  height={300}
+/>
+```
+
+### Arc labels
+
+Display a label inside each arc with the `arcLabel` property.
+
+```tsx
+<PieChart
+  series={[
+    {
+      data: [
+        { id: 0, value: 50, label: 'A' },
+        { id: 1, value: 30, label: 'B' },
+        { id: 2, value: 20, label: 'C' },
+      ],
+      arcLabel: 'value',      // 'value' | 'label' | 'formattedValue' | function
+      arcLabelMinAngle: 20,   // hide label if arc angle is smaller than this (degrees)
+    },
+  ]}
+  width={400}
+  height={300}
+/>
+```
+
+<Tip>
+Use `arcLabel: (item) => \`${item.value}%\`` with a function for fully custom arc labels.
+</Tip>
+
+---
+
+## RadarChart
+
+`RadarChart` renders a polygon for each series, with each axis representing one metric. The `radar` prop (required) describes the metric names and optional per-metric domains.
+
+### Basic example
+
+```tsx
+import { RadarChart } from '@mui/x-charts/RadarChart';
+
+<RadarChart
+  series={[
+    { data: [80, 60, 90, 70, 50], label: 'Team A' },
+    { data: [50, 85, 60, 95, 75], label: 'Team B' },
+  ]}
+  radar={{
+    metrics: ['Speed', 'Strength', 'Agility', 'Endurance', 'Precision'],
+    max: 100,
+  }}
+  width={400}
+  height={400}
+/>
+```
+
+### Series structure
+
+Each `RadarSeries` object can contain:
+
+| Property | Type | Description |
+|---|---|---|
+| `data` | `number[]` | One value per metric (order matches `radar.metrics`) |
+| `label` | `string` | Legend and tooltip label |
+| `color` | `string` | Override the auto-assigned color |
+| `fillArea` | `boolean` | Fill the polygon with a semi-transparent color |
+| `hideMark` | `boolean` | Hide the circular marks at data points |
+
+### RadarConfig reference
+
+The `radar` prop accepts a `RadarConfig` object:
+
+| Property | Type | Description |
+|---|---|---|
+| `metrics` | `string[] \| MetricConfig[]` | Axis labels (required) |
+| `max` | `number` | Default maximum value for all axes |
+| `startAngle` | `number` | Rotation offset in degrees (default `0`) |
+| `labelGap` | `number` | Space between the outer edge and metric labels |
+| `labelFormatter` | `function` | Custom metric label renderer |
+
+For per-metric domains, use `MetricConfig` objects instead of plain strings:
+
+```tsx
+<RadarChart
+  series={[{ data: [80, 60, 90], label: 'Athlete' }]}
+  radar={{
+    metrics: [
+      { name: 'Speed', max: 100 },
+      { name: 'Strength', max: 150 },
+      { name: 'Flexibility', min: 20, max: 100 },
+    ],
+  }}
+  width={400}
+  height={400}
+/>
+```
+
+### Filled area variant
+
+```tsx
+<RadarChart
+  series={[
+    { data: [70, 80, 60, 90], label: 'Q1', fillArea: true },
+    { data: [50, 65, 85, 70], label: 'Q2', fillArea: true },
+  ]}
+  radar={{ metrics: ['A', 'B', 'C', 'D'] }}
+  width={400}
+  height={400}
+/>
+```
+
+---
+
+## Gauge
+
+`Gauge` renders an arc-shaped progress or value indicator. It is a standalone component that does not use the `series` API.
+
+```tsx
+import { Gauge } from '@mui/x-charts/Gauge';
+
+<Gauge
+  value={65}
+  valueMin={0}
+  valueMax={100}
+  startAngle={-110}
+  endAngle={110}
+  width={200}
+  height={130}
+/>
+```
+
+Key props:
+
+| Property | Type | Description |
+|---|---|---|
+| `value` | `number` | Current value |
+| `valueMin` | `number` | Minimum of the range (default `0`) |
+| `valueMax` | `number` | Maximum of the range (default `100`) |
+| `startAngle` | `number` | Arc start in degrees (default `-180`) |
+| `endAngle` | `number` | Arc end in degrees (default `0`) |
+| `cornerRadius` | `number \| string` | Rounded arc corners |
+| `text` | `string \| function` | Label displayed in the center |
+| `cx` | `number \| string` | Horizontal center position |
+| `cy` | `number \| string` | Vertical center position |
+
+### Custom center text
+
+```tsx
+<Gauge
+  value={75}
+  valueMax={100}
+  startAngle={-90}
+  endAngle={90}
+  width={200}
+  height={130}
+  text={({ value, valueMax }) => `${value} / ${valueMax}`}
+/>
+```
+
+<Note>
+`Gauge` is a simplified wrapper around `GaugeContainer`, `GaugeValueArc`, `GaugeReferenceArc`, and `GaugeValueText`. Import those primitives directly from `@mui/x-charts/Gauge` for full compositional control.
+</Note>

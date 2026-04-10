@@ -1,0 +1,147 @@
+---
+title: "Theme MUI X components with Material UI"
+description: "Use the Material UI theme system to customize the appearance of MUI X components via createTheme, theme.components, and the sx prop."
+---
+
+MUI X components integrate with the Material UI theme system. You can override styles globally using `createTheme` and `theme.components`, or apply one-off styles with the `sx` prop — no need to reach for CSS overrides.
+
+## Activate theme augmentation
+
+Each MUI X package ships a theme augmentation module that extends the `Components` interface from `@mui/material/styles`. Import it once alongside your theme file to unlock full TypeScript support for MUI X keys in `createTheme`.
+
+```tsx
+// Data Grid
+import '@mui/x-data-grid/themeAugmentation';
+
+// Date Pickers
+import '@mui/x-date-pickers/themeAugmentation';
+
+// Charts
+import '@mui/x-charts/themeAugmentation';
+
+// Tree View
+import '@mui/x-tree-view/themeAugmentation';
+```
+
+## Override styles globally with createTheme
+
+Use `styleOverrides` inside the component key to target CSS class slots. The callback form receives `theme` and `ownerState`, identical to core MUI components.
+
+```tsx
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { DataGrid } from '@mui/x-data-grid';
+import '@mui/x-data-grid/themeAugmentation';
+
+const theme = createTheme({
+  components: {
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          border: 'none',
+          borderRadius: 8,
+        },
+        columnHeader: {
+          backgroundColor: '#f5f5f5',
+          fontWeight: 700,
+        },
+        row: ({ theme }) => ({
+          '&:hover': {
+            backgroundColor: theme.palette.action.hover,
+          },
+        }),
+      },
+    },
+  },
+});
+
+export default function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <DataGrid rows={[]} columns={[]} />
+    </ThemeProvider>
+  );
+}
+```
+
+<Note>
+  The callback form of `styleOverrides` (receiving `theme` and `ownerState`) is supported for all MUI X components, identical to core MUI components.
+</Note>
+
+## Set default props globally
+
+Use `defaultProps` to avoid repeating the same prop on every component instance:
+
+```tsx
+const theme = createTheme({
+  components: {
+    MuiDataGrid: {
+      defaultProps: {
+        autoHeight: true,
+        disableRowSelectionOnClick: true,
+        pageSizeOptions: [10, 25, 50],
+      },
+    },
+  },
+});
+```
+
+## Extend the DataGrid palette
+
+The Data Grid exposes palette tokens under the `DataGrid` palette key — `bg`, `headerBg`, and `pinnedBg`. These are CSS-variable-aware and work with `CssVarsProvider`.
+
+```tsx
+import { createTheme } from '@mui/material/styles';
+import '@mui/x-data-grid/themeAugmentation';
+
+const theme = createTheme({
+  palette: {
+    DataGrid: {
+      bg: '#fafafa',
+      headerBg: '#e8eaf6',
+      pinnedBg: '#f3e5f5',
+    },
+  },
+});
+```
+
+<Tip>
+  Palette tokens under `DataGrid` map to CSS variables when you use `CssVarsProvider`, so you can switch themes at runtime without a React re-render.
+</Tip>
+
+## One-off styles with the sx prop
+
+Use the `sx` prop for styles that apply to a single component instance. `sx` supports the full MUI system syntax including responsive values, theme tokens, and pseudo-selectors.
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  sx={{
+    '& .MuiDataGrid-columnHeader': {
+      backgroundColor: 'primary.light',
+      color: 'primary.contrastText',
+    },
+    '& .MuiDataGrid-cell:focus': {
+      outline: 'none',
+    },
+  }}
+/>
+```
+
+<Warning>
+  Prefer `styleOverrides` in the theme for app-wide styles. Use `sx` only for exceptions — it generates inline `<style>` tags and can hurt performance if applied to many instances.
+</Warning>
+
+## Related
+
+<CardGroup>
+  <Card title="Slots API" icon="puzzle-piece" href="/customization/slots">
+    Replace internal sub-components using the slots pattern.
+  </Card>
+  <Card title="Custom components" icon="wrench" href="/customization/custom-components">
+    Build and inject your own slot implementations.
+  </Card>
+  <Card title="Licensing" icon="key" href="/licensing">
+    Some MUI X components require a commercial license.
+  </Card>
+</CardGroup>

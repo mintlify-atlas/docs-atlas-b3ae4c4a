@@ -1,97 +1,78 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "MUI X: Advanced React UI Components"
+description: "MUI X provides production-ready Data Grid, Date & Time Pickers, Charts, and Tree View components for building data-rich React applications."
 ---
 
-## Setting up
+MUI X is a suite of advanced React UI components designed for complex, data-intensive applications. Built on top of Material UI, MUI X components deliver best-in-class user experience with sophisticated workflows — all fully customizable to match any design system.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get your first MUI X component running in under 5 minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Licensing" icon="certificate" href="/licensing">
+    Understand Community, Pro, and Premium plans and install your license key.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Data Grid" icon="table" href="/data-grid/overview">
+    Explore the most feature-rich React data grid with sorting, filtering, and editing.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Charts" icon="chart-line" href="/charts/overview">
+    Render bar, line, pie, radar, and scatter charts with a simple declarative API.
   </Card>
-</Columns>
+  <Card title="Date & Time Pickers" icon="calendar" href="/date-pickers/overview">
+    Date, time, and range pickers with adapter support for Day.js, Luxon, and more.
+  </Card>
+  <Card title="Tree View" icon="sitemap" href="/tree-view/overview">
+    Hierarchical tree components with drag-and-drop and rich customization.
+  </Card>
+</CardGroup>
 
-## Create beautiful pages
+## What's included
 
-Everything you need to create world-class documentation.
+MUI X components are available in three plans:
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+<CardGroup cols={3}>
+  <Card title="Community (MIT)" icon="code-branch">
+    Free forever. Data Grid, Date Pickers, Charts, and Tree View with core features — fully open source under MIT.
   </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
+  <Card title="Pro" icon="star">
+    Commercial license. Unlocks advanced features: column pinning, multi-filtering, range pickers, and drag-and-drop.
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
+  <Card title="Premium" icon="crown">
+    Commercial license. Everything in Pro, plus row grouping, aggregation, Excel export, and pivot tables.
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## Get started
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<Steps>
+  <Step title="Install a package">
+    Choose the component suite you need and install it via npm, yarn, or pnpm.
+    ```bash
+    npm install @mui/x-data-grid @mui/material @emotion/react @emotion/styled
+    ```
+  </Step>
+  <Step title="Import and use the component">
+    Import the component and add it to your React app with minimal configuration.
+    ```tsx
+    import { DataGrid } from '@mui/x-data-grid';
+
+    const columns = [
+      { field: 'id', headerName: 'ID', width: 90 },
+      { field: 'name', headerName: 'Name', width: 150 },
+    ];
+
+    const rows = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
+
+    export default function App() {
+      return <DataGrid rows={rows} columns={columns} />;
+    }
+    ```
+  </Step>
+  <Step title="Explore advanced features">
+    Browse the component documentation to add filtering, sorting, theming, and more.
+  </Step>
+</Steps>
+
+<Note>
+  Pro and Premium features require a commercial license key. See the [licensing guide](/licensing) for setup instructions.
+</Note>

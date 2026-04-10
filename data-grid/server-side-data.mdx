@@ -1,0 +1,199 @@
+---
+title: "Server-side data fetching in Data Grid Pro"
+description: "Use the GridDataSource interface and dataSource prop on DataGridPro to delegate row fetching, sorting, filtering, and pagination entirely to your backend server."
+---
+
+The `dataSource` prop on `DataGridPro` and `DataGridPremium` provides a unified interface for server-driven data loading. Instead of managing separate handlers for sorting, filtering, and pagination changes, you implement a single `getRows` function that receives all current grid state and returns data for the requested range.
+
+<Warning>
+The `dataSource` prop requires a Pro or Premium license. See the [licensing](/licensing) page.
+</Warning>
+
+## The GridDataSource interface
+
+Implement this interface to connect the grid to your server:
+
+```typescript
+interface GridDataSource {
+  /**
+   * Called whenever the grid needs to fetch rows.
+   * Receives the current sort, filter, and pagination state.
+   */
+  getRows(params: GridGetRowsParams): Promise<GridGetRowsResponse>;
+
+  /**
+   * Optional: called when the user saves an edited row.
+   */
+  updateRow?(params: GridUpdateRowParams): Promise<any>;
+}
+```
+
+### GridGetRowsParams
+
+The `params` argument contains everything needed to query your server:
+
+```typescript
+interface GridGetRowsParams {
+  sortModel: GridSortModel;        // Active sort descriptors
+  filterModel: GridFilterModel;    // Active filter descriptors
+  paginationModel?: GridPaginationModel; // { page, pageSize }
+  start: number | string;          // First row index (or cursor)
+  end: number;                     // Last row index
+}
+```
+
+### GridGetRowsResponse
+
+Your `getRows` function must resolve with:
+
+```typescript
+interface GridGetRowsResponse {
+  rows: GridRowModel[];      // The rows for this page/range
+  rowCount?: number;         // Total rows matching the current filter (for paginator)
+  pageInfo?: {
+    hasNextPage?: boolean;   // For cursor-based / infinite scroll
+    nextCursor?: string;
+  };
+}
+```
+
+## Basic example
+
+```tsx
+import { DataGridPro, GridDataSource } from '@mui/x-data-grid-pro';
+
+const dataSource: GridDataSource = {
+  async getRows(params) {
+    const { sortModel, filterModel, paginationModel } = params;
+
+    // Build a request URL from the grid's current state
+    const searchParams = new URLSearchParams({
+      page: String(paginationModel?.page ?? 0),
+      pageSize: String(paginationModel?.pageSize ?? 100),
+    });
+
+    if (sortModel.length > 0) {
+      searchParams.set('sortField', sortModel[0].field);
+      searchParams.set('sortOrder', sortModel[0].sort ?? 'asc');
+    }
+
+    const response = await fetch(`/api/employees?${searchParams}`);
+    const json = await response.json();
+
+    return {
+      rows: json.data,
+      rowCount: json.total,
+    };
+  },
+};
+
+export default function ServerDataGrid() {
+  return (
+    <DataGridPro
+      columns={columns}
+      dataSource={dataSource}
+      pagination
+      pageSizeOptions={[25, 50, 100]}
+      initialState={{
+        pagination: { paginationModel: { pageSize: 25 } },
+      }}
+    />
+  );
+}
+```
+
+<Note>
+When using `dataSource`, do not also pass the `rows` prop. The grid manages row data internally.
+</Note>
+
+## Handling errors
+
+Use `onDataSourceError` to handle fetch failures gracefully:
+
+```tsx
+<DataGridPro
+  columns={columns}
+  dataSource={dataSource}
+  onDataSourceError={(error) => {
+    console.error('Data source error:', error);
+    // Show a toast notification, etc.
+  }}
+/>
+```
+
+## Server-side row editing with updateRow
+
+Implement `updateRow` on the data source to persist edits to the server. The grid will optimistically update its internal cache on success.
+
+```tsx
+const dataSource: GridDataSource = {
+  async getRows(params) {
+    // ... fetch logic
+  },
+  async updateRow({ rowId, updatedRow, previousRow }) {
+    const response = await fetch(`/api/employees/${rowId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updatedRow),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update row');
+    }
+    return response.json();
+  },
+};
+```
+
+## Caching
+
+The grid caches fetched rows by default to avoid redundant network requests when the user navigates between pages with the same sort/filter state. You can provide a custom cache implementation via the `dataSourceCache` prop:
+
+```typescript
+interface GridDataSourceCache {
+  set(key: GridGetRowsParams, value: GridGetRowsResponse): void;
+  get(key: GridGetRowsParams): GridGetRowsResponse | undefined;
+  clear(): void;
+}
+```
+
+To disable caching, pass `dataSourceCache={null}`.
+
+## Cache revalidation
+
+Set `dataSourceRevalidateMs` to a positive number of milliseconds to have the grid periodically refresh stale cache entries:
+
+```tsx
+<DataGridPro
+  columns={columns}
+  dataSource={dataSource}
+  dataSourceRevalidateMs={30000}  // Revalidate every 30 seconds
+/>
+```
+
+## Lazy loading with cursor-based pagination
+
+For cursor-based APIs, return `pageInfo.nextCursor` in the response and use the `start` field in `params` as the cursor on subsequent requests:
+
+```tsx
+const dataSource: GridDataSource = {
+  async getRows(params) {
+    const cursor = typeof params.start === 'string' ? params.start : undefined;
+    const response = await fetch(`/api/events?cursor=${cursor ?? ''}&limit=${params.end - (params.start as number)}`);
+    const json = await response.json();
+
+    return {
+      rows: json.events,
+      pageInfo: {
+        hasNextPage: json.hasMore,
+        nextCursor: json.nextCursor,
+      },
+    };
+  },
+};
+```
+
+## Next steps
+
+- [Sorting and pagination](/data-grid/sorting-pagination) — client-side sorting and pagination for smaller datasets
+- [Filtering](/data-grid/filtering) — understand filter model structure
+- [Pro features](/data-grid/pro-features) — other DataGridPro capabilities

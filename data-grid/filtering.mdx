@@ -1,0 +1,191 @@
+---
+title: "Filter Data Grid rows with built-in and custom filters"
+description: "Use the filter model, column-level filter operators, quick filter, and server-side filtering to control which rows the Data Grid displays."
+---
+
+The Data Grid includes a built-in column filter UI and a quick filter search box. Filtering can run on the client side (default) or be delegated to your server. You control filter state through the `filterModel` prop and respond to changes with `onFilterModelChange`.
+
+## Filter model
+
+The filter model describes the active filters. It has the following shape:
+
+```typescript
+interface GridFilterModel {
+  items: GridFilterItem[];          // One entry per active column filter
+  logicOperator?: 'and' | 'or';    // Combine items with AND (default) or OR
+  quickFilterValues?: any[];        // Values from the quick filter input
+  quickFilterLogicOperator?: 'and' | 'or';
+  quickFilterExcludeHiddenColumns?: boolean; // default true
+}
+```
+
+Each `GridFilterItem` identifies a column, an operator, and a value:
+
+```typescript
+{
+  field: 'age',
+  operator: '>=',
+  value: '30',
+}
+```
+
+## Opening the filter panel
+
+Enable the toolbar with `showToolbar` to give users access to the filter panel button:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  showToolbar
+/>
+```
+
+## Controlled filter model
+
+Use `filterModel` and `onFilterModelChange` to manage filter state yourself:
+
+```tsx
+import { useState } from 'react';
+import { DataGrid, GridFilterModel } from '@mui/x-data-grid';
+
+export default function FilteredGrid() {
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({
+    items: [{ field: 'age', operator: '>=', value: '30' }],
+  });
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      filterModel={filterModel}
+      onFilterModelChange={(model) => setFilterModel(model)}
+    />
+  );
+}
+```
+
+## Quick filter
+
+The quick filter lets users search across all visible columns from a single input. Enable it by adding `showToolbar` to the grid:
+
+```tsx
+<DataGrid rows={rows} columns={columns} showToolbar />
+```
+
+You can also set a default quick filter value through `initialState`:
+
+```tsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  showToolbar
+  initialState={{
+    filter: {
+      filterModel: {
+        items: [],
+        quickFilterValues: ['Alice'],
+      },
+    },
+  }}
+/>
+```
+
+To include hidden columns in quick filter results, set `quickFilterExcludeHiddenColumns` to `false`:
+
+```tsx
+const [filterModel, setFilterModel] = useState<GridFilterModel>({
+  items: [],
+  quickFilterValues: ['engineering'],
+  quickFilterExcludeHiddenColumns: false,
+});
+```
+
+## Filter operators per column type
+
+The Data Grid automatically assigns filter operators based on the column `type`:
+
+| Type | Operators |
+|------|-----------|
+| `string` | contains, equals, starts with, ends with, is empty, is not empty |
+| `number` | =, !=, >, >=, &lt;, &lt;= |
+| `date` / `dateTime` | is, is not, is after, is on or after, is before, is on or before |
+| `boolean` | is |
+| `singleSelect` | is, is not, is any of |
+
+## Custom filter operators
+
+Provide custom operators through the `filterOperators` property on a column definition:
+
+```tsx
+import { GridFilterOperator } from '@mui/x-data-grid';
+
+const greaterThanThousand: GridFilterOperator = {
+  label: '> 1000',
+  value: 'greaterThanThousand',
+  getApplyFilterFn: () => {
+    return (value) => Number(value) > 1000;
+  },
+};
+
+const columns: GridColDef[] = [
+  {
+    field: 'revenue',
+    type: 'number',
+    filterOperators: [greaterThanThousand],
+  },
+];
+```
+
+## Server-side filtering
+
+Set `filterMode="server"` to skip client-side filtering. The grid will call `onFilterModelChange` whenever filters change. Use this callback to refetch data from your server.
+
+```tsx
+import { useState } from 'react';
+import { DataGrid, GridFilterModel } from '@mui/x-data-grid';
+
+export default function ServerFilterGrid() {
+  const [rows, setRows] = useState([]);
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] });
+
+  const handleFilterModelChange = async (model: GridFilterModel) => {
+    setFilterModel(model);
+    const data = await fetchRows({ filterModel: model });
+    setRows(data);
+  };
+
+  return (
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      filterMode="server"
+      filterModel={filterModel}
+      onFilterModelChange={handleFilterModelChange}
+    />
+  );
+}
+```
+
+<Tip>
+For a fully integrated server-side approach that handles sorting, filtering, and pagination together, see the [server-side data](/data-grid/server-side-data) page.
+</Tip>
+
+## Disabling filtering
+
+Disable filtering for all columns at once:
+
+```tsx
+<DataGrid rows={rows} columns={columns} disableColumnFilter />
+```
+
+Disable filtering for a specific column:
+
+```tsx
+{ field: 'internalId', filterable: false }
+```
+
+## Next steps
+
+- [Sorting and pagination](/data-grid/sorting-pagination) — control sort order and page size
+- [Server-side data](/data-grid/server-side-data) — delegate filtering, sorting, and pagination to the server

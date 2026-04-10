@@ -1,0 +1,211 @@
+---
+title: "Configure axes and legends in MUI X Charts"
+description: "How to configure xAxis and yAxis scale types, labels, domains, grid lines, ChartsLegend position, and ChartsTooltip on MUI X charts."
+---
+
+MUI X Charts expose `xAxis`, `yAxis`, `grid`, and `slotProps.legend` on every Cartesian chart, giving you full control over how axes, grid lines, legends, and tooltips are rendered.
+
+## Axes
+
+Every Cartesian chart (`BarChart`, `LineChart`, `ScatterChart`) accepts an `xAxis` and `yAxis` prop. Each is an array of axis configuration objects.
+
+### Scale types
+
+The `scaleType` property selects the D3 scale used for that axis.
+
+| `scaleType` | When to use |
+|---|---|
+| `'band'` | Categorical data (strings) — required for bar chart x-axis |
+| `'point'` | Ordered categorical data for line/scatter |
+| `'linear'` | Continuous numeric range (default for numeric axes) |
+| `'log'` | Logarithmic numeric scale |
+| `'sqrt'` | Square-root numeric scale |
+| `'pow'` | Power numeric scale |
+| `'time'` | `Date` values using local timezone |
+| `'utc'` | `Date` values using UTC timezone |
+
+```tsx
+<LineChart
+  series={[{ data: [3, 7, 4, 9] }]}
+  xAxis={[{ scaleType: 'point', data: ['Jan', 'Feb', 'Mar', 'Apr'] }]}
+  yAxis={[{ scaleType: 'linear', min: 0, max: 15, label: 'Value' }]}
+  width={500}
+  height={300}
+/>
+```
+
+### Axis data and domain
+
+| Property | Type | Description |
+|---|---|---|
+| `data` | `any[]` | Tick values (required for `band` and `point` scales) |
+| `min` | `number \| Date` | Minimum value of the domain (linear scales) |
+| `max` | `number \| Date` | Maximum value of the domain (linear scales) |
+| `domainLimit` | `'nice' \| 'strict' \| function` | How to compute the domain edge |
+| `reverse` | `boolean` | Flip the axis direction |
+
+```tsx
+<BarChart
+  series={[{ data: [2, 5, 3, 8] }]}
+  xAxis={[{ data: ['A', 'B', 'C', 'D'], scaleType: 'band' }]}
+  yAxis={[{ min: 0, max: 10, domainLimit: 'nice' }]}
+  width={400}
+  height={300}
+/>
+```
+
+### Axis labels and ticks
+
+```tsx
+<LineChart
+  series={[{ data: [1, 4, 2, 7] }]}
+  xAxis={[{
+    data: ['Q1', 'Q2', 'Q3', 'Q4'],
+    label: 'Quarter',            // axis title
+    tickSize: 6,                 // tick length in px
+    tickLabelStyle: { fill: '#666', fontSize: 12 },
+    disableTicks: false,
+    disableLine: false,
+  }]}
+  yAxis={[{
+    label: 'Revenue ($k)',
+    labelStyle: { fontWeight: 600 },
+  }]}
+  width={500}
+  height={300}
+/>
+```
+
+### Value formatter
+
+Use `valueFormatter` on an axis to format how tick labels are displayed.
+
+```tsx
+<LineChart
+  series={[{ data: [1000, 5000, 3000, 8000] }]}
+  yAxis={[{
+    valueFormatter: (value) => `$${(value / 1000).toFixed(0)}k`,
+  }]}
+  width={400}
+  height={300}
+/>
+```
+
+### Axis position
+
+| Prop | Values |
+|---|---|
+| `xAxis[].position` | `'bottom'` (default) \| `'top'` \| `'none'` |
+| `yAxis[].position` | `'left'` (default) \| `'right'` \| `'none'` |
+
+Setting `position: 'none'` hides the axis line and ticks while still using the scale for data rendering.
+
+---
+
+## Grid
+
+Use the `grid` prop to add background grid lines. Both `horizontal` and `vertical` are optional booleans.
+
+```tsx
+<LineChart
+  series={[{ data: [2, 5, 3, 7] }]}
+  xAxis={[{ data: [1, 2, 3, 4] }]}
+  grid={{ horizontal: true, vertical: false }}
+  width={500}
+  height={300}
+/>
+```
+
+`ChartsGrid` can also be used directly as a composition primitive:
+
+```tsx
+import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
+
+<ChartsGrid horizontal vertical />
+```
+
+---
+
+## Legend
+
+The legend is rendered automatically when series have `label` properties. You can control its position and direction through `slotProps.legend`.
+
+```tsx
+<BarChart
+  series={[
+    { data: [3, 7, 4], label: 'Apples' },
+    { data: [1, 5, 6], label: 'Oranges' },
+  ]}
+  xAxis={[{ data: ['Jan', 'Feb', 'Mar'], scaleType: 'band' }]}
+  slotProps={{
+    legend: {
+      position: { vertical: 'top', horizontal: 'right' },
+      direction: 'row',
+    },
+  }}
+  width={500}
+  height={300}
+/>
+```
+
+`position` accepts `{ vertical: 'top' | 'middle' | 'bottom', horizontal: 'left' | 'middle' | 'right' }`.
+
+To remove the legend entirely, pass `hideLegend`:
+
+```tsx
+<BarChart hideLegend series={[ ... ]} xAxis={[ ... ]} width={400} height={300} />
+```
+
+### Toggling series visibility
+
+Set `toggleVisibilityOnClick` on the legend slot to let users hide individual series by clicking their legend item:
+
+```tsx
+<LineChart
+  series={[ ... ]}
+  xAxis={[ ... ]}
+  slotProps={{ legend: { toggleVisibilityOnClick: true } }}
+  width={500}
+  height={300}
+/>
+```
+
+---
+
+## Tooltip
+
+`ChartsTooltip` is rendered automatically. Its behavior can be adjusted via the `slotProps.tooltip` prop.
+
+```tsx
+<LineChart
+  series={[{ data: [2, 5, 3, 8], label: 'Series A' }]}
+  xAxis={[{ data: [1, 2, 3, 4] }]}
+  slotProps={{
+    tooltip: { trigger: 'axis' },   // 'axis' | 'item' | 'none'
+  }}
+  width={500}
+  height={300}
+/>
+```
+
+`trigger: 'axis'` shows all series values at the hovered axis position. `trigger: 'item'` shows only the hovered series item. `trigger: 'none'` disables the tooltip entirely.
+
+<Note>
+Use `hideTooltip: true` on an individual axis config to exclude that axis from triggering tooltip updates.
+</Note>
+
+### Axis highlight
+
+The `axisHighlight` prop controls the highlight band or line drawn on the chart when hovering.
+
+```tsx
+<BarChart
+  series={[ ... ]}
+  xAxis={[ ... ]}
+  axisHighlight={{ x: 'band', y: 'none' }}
+  width={500}
+  height={300}
+/>
+```
+
+Values are `'band'`, `'line'`, or `'none'` for each axis direction.

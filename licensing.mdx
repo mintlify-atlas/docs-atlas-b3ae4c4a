@@ -1,0 +1,106 @@
+---
+title: "MUI X licensing: Community, Pro, and Premium"
+description: "MUI X is open-core: the Community tier is MIT-licensed and free, while Pro and Premium unlock advanced features under a commercial license."
+---
+
+MUI X uses an open-core licensing model. The Community edition covers the core components and is published under the MIT license—it is free to use in any project, commercial or otherwise, and will remain so permanently. The Pro and Premium tiers unlock more advanced features that require a paid commercial license. This model lets the MUI team maintain a full-time engineering staff while keeping the foundational components freely available.
+
+## Licensing tiers
+
+### Community plan
+
+The Community plan is MIT-licensed and costs nothing. It includes the complete core implementation of each component family.
+
+| Package | Description |
+|---------|-------------|
+| `@mui/x-data-grid` | Data Grid with sorting, filtering, and pagination |
+| `@mui/x-date-pickers` | Date, time, and date-time picker components |
+| `@mui/x-charts` | Bar, line, scatter, pie, and radar charts |
+| `@mui/x-tree-view` | Hierarchical tree view component |
+
+No license key is needed for any of these packages.
+
+### Pro plan
+
+The Pro plan adds advanced features on top of the Community components. It is available under a commercial license.
+
+| Package | Additional features |
+|---------|---------------------|
+| `@mui/x-data-grid-pro` | Multi-filtering, multi-sorting, column resizing, column pinning |
+| `@mui/x-date-pickers-pro` | Date Range Picker, Time Range Picker |
+| `@mui/x-charts-pro` | Advanced chart types and zoom/pan interactions |
+| `@mui/x-tree-view-pro` | Drag-and-drop reordering |
+
+### Premium plan
+
+The Premium plan unlocks the most advanced Data Grid capabilities, plus everything included in Pro.
+
+| Package | Additional features |
+|---------|---------------------|
+| `@mui/x-data-grid-premium` | Row grouping, aggregation, Excel export |
+| `@mui/x-charts-premium` | Advanced analytics chart types |
+
+<Note>
+  There is no separate `@mui/x-date-pickers-premium` or `@mui/x-tree-view-premium` package. The Pro packages cover the full feature set for those component families.
+</Note>
+
+## Applying your license key
+
+If you are using any Pro or Premium package, you must install your license key once at application startup—before any MUI X components render. Call `LicenseInfo.setLicenseKey()` from `@mui/x-license` at the entry point of your application.
+
+```tsx
+import { LicenseInfo } from '@mui/x-license';
+
+LicenseInfo.setLicenseKey('YOUR_LICENSE_KEY');
+```
+
+Place this call in your app's root file (for example, `main.tsx`, `index.tsx`, or `App.tsx`) so it runs before any Pro or Premium components mount.
+
+### Example: Next.js app router
+
+```tsx
+// app/layout.tsx
+import { LicenseInfo } from '@mui/x-license';
+
+LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE_KEY!);
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+<Tip>
+  Store your license key in an environment variable (for example, `NEXT_PUBLIC_MUI_LICENSE_KEY`) rather than hard-coding it in source. The key is not a secret—it will be visible in the browser bundle—but using an environment variable makes it easier to rotate and manage across environments.
+</Tip>
+
+### Example: Vite / Create React App
+
+```tsx
+// src/main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { LicenseInfo } from '@mui/x-license';
+import App from './App';
+
+LicenseInfo.setLicenseKey(import.meta.env.VITE_MUI_LICENSE_KEY);
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
+```
+
+## What happens without a license key
+
+<Warning>
+  If you use a Pro or Premium package without setting a valid license key, MUI X will display a watermark on the affected components and log a warning to the browser console. The components will still function, but the watermark will be visible to your users. This behavior is intended to indicate an unlicensed usage in production.
+</Warning>
+
+## Purchasing a license
+
+License keys are tied to the number of developers on your team and to the major version of MUI X you are using. Visit the [MUI pricing page](https://mui.com/pricing/) for current pricing and to purchase a license. Volume discounts are available for larger teams.
